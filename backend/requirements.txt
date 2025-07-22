@@ -1,0 +1,174 @@
+# FastAPI and Web Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+gunicorn==21.2.0
+starlette==0.27.0
+
+# Database Drivers and ORM
+sqlalchemy==2.0.23
+alembic==1.12.1
+psycopg2-binary==2.9.9
+asyncpg==0.29.0
+
+# Authentication and Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+cryptography==41.0.8
+pyjwt==2.8.0
+
+# Environment and Configuration
+pydantic[email]==2.5.0
+python-dotenv==1.0.0
+pydantic-settings==2.0.3
+
+# Redis for Caching and Sessions
+redis==5.0.1
+aioredis==2.0.1
+
+# Elasticsearch for Log Search
+elasticsearch==8.11.0
+elasticsearch-dsl==8.11.0
+
+# HTTP Client
+httpx==0.25.2
+aiohttp==3.9.1
+
+# Data Processing and Validation
+pandas==2.1.3
+numpy==1.25.2
+pydantic==2.5.0
+marshmallow==3.20.1
+
+# Logging and Monitoring
+structlog==23.2.0
+prometheus-client==0.19.0
+python-json-logger==2.0.7
+
+# File Processing
+python-magic==0.4.27
+chardet==5.2.0
+
+# Date and Time
+python-dateutil==2.8.2
+pytz==2023.3
+
+# Digital Signatures and Compliance
+cryptography==41.0.8
+asn1crypto==1.5.1
+
+# Email Support
+fastapi-mail==1.4.1
+jinja2==3.1.2
+
+# Validation and Serialization
+cerberus==1.3.5
+marshmallow==3.20.1
+
+# Background Tasks
+celery==5.3.4
+kombu==5.3.4
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+httpx==0.25.2
+factory-boy==3.3.0
+
+# Development Tools
+black==23.11.0
+isort==5.12.0
+flake8==6.1.0
+mypy==1.7.1
+pre-commit==3.6.0
+
+# File System Monitoring
+watchdog==3.0.0
+
+# MAC Address Validation
+netaddr==0.9.0
+
+# System Information
+psutil==5.9.6
+
+# Template Engine
+jinja2==3.1.2
+
+# ZIP and Archive Support
+zipfile36==0.1.3
+
+# Progress Bars
+tqdm==4.66.1
+
+# LDAP Support (Optional)
+python-ldap==3.4.3
+
+# Time Series Data
+influxdb-client==1.39.0
+
+# GraphQL (Optional for advanced API)
+strawberry-graphql[fastapi]==0.214.1
+
+# Rate Limiting
+slowapi==0.1.9
+
+# Metrics and Observability
+opentelemetry-api==1.21.0
+opentelemetry-sdk==1.21.0
+opentelemetry-instrumentation-fastapi==0.42b0
+opentelemetry-instrumentation-sqlalchemy==0.42b0
+
+# Image Processing (for reports)
+pillow==10.1.0
+reportlab==4.0.7
+
+# Excel Support
+openpyxl==3.1.2
+xlsxwriter==3.1.9
+
+# PDF Generation
+weasyprint==60.2
+
+# Network Tools
+scapy==2.5.0
+
+# Async Support
+asyncio-throttle==1.0.2
+aiofiles==23.2.1
+
+# CLI Tools
+click==8.1.7
+typer==0.9.0
+
+# UUID Generation
+uuid==1.30
+
+# JSON Schema
+jsonschema==4.20.0
+
+# Backup and Compression
+py7zr==0.20.8
+
+# System Utilities
+distro==1.8.0
+
+# Turkish Language Support
+turkish==0.2.1
+
+# Geographic IP
+geoip2==4.7.0
+
+# Message Queue
+pika==1.3.2
+
+# Health Checks
+healthcheck==1.3.3
+
+# Performance Monitoring
+memory-profiler==0.61.0
+line-profiler==4.1.1
+
+# API Documentation
+mkdocs==1.5.3
+mkdocs-material==9.4.8 
