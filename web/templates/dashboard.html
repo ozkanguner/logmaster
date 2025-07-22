@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - LogMaster</title>
+    
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/static/css/dashboard.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="bi bi-shield-check"></i> LogMaster
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#dashboard">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#logs">
+                            <i class="bi bi-file-text"></i> Loglar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#devices">
+                            <i class="bi bi-router"></i> Cihazlar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#signatures">
+                            <i class="bi bi-pen"></i> İmzalar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#archives">
+                            <i class="bi bi-archive"></i> Arşiv
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#reports">
+                            <i class="bi bi-file-earmark-text"></i> Raporlar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#compliance">
+                            <i class="bi bi-check-circle"></i> Uyumluluk
+                        </a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i> {{ username }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#settings">
+                                <i class="bi bi-gear"></i> Ayarlar
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/logout">
+                                <i class="bi bi-box-arrow-right"></i> Çıkış
+                            </a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid py-4">
+        
+        <!-- Dashboard Overview -->
+        <div id="dashboard" class="section">
+            <div class="row mb-4">
+                <div class="col">
+                    <h2><i class="bi bi-speedometer2"></i> Dashboard</h2>
+                    <p class="text-muted">5651 Kanunu Uyumlu Log Yönetim Sistemi</p>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-outline-primary" onclick="refreshDashboard()">
+                        <i class="bi bi-arrow-clockwise"></i> Yenile
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="row mb-4">
+                <div class="col-lg-3 col-md-6">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 id="totalLogs">-</h4>
+                                    <small>Toplam Log (24s)</small>
+                                </div>
+                                <div class="card-icon">
+                                    <i class="bi bi-file-text-fill"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 id="activeDevices">-</h4>
+                                    <small>Aktif Cihaz</small>
+                                </div>
+                                <div class="card-icon">
+                                    <i class="bi bi-router-fill"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 id="signedFiles">-</h4>
+                                    <small>İmzalı Dosya</small>
+                                </div>
+                                <div class="card-icon">
+                                    <i class="bi bi-pen-fill"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 id="diskUsage">-</h4>
+                                    <small>Disk Kullanımı</small>
+                                </div>
+                                <div class="card-icon">
+                                    <i class="bi bi-hdd-fill"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="row mb-4">
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="bi bi-bar-chart"></i> Günlük Log Akışı</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="logFlowChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="bi bi-pie-chart"></i> İmza Durumu</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="signatureStatusChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Status -->
+            <div class="row">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="bi bi-activity"></i> Sistem Durumu</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="systemStatus" class="row">
+                                <!-- System status will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logs Section -->
+        <div id="logs" class="section" style="display: none;">
+            <div class="row mb-4">
+                <div class="col">
+                    <h2><i class="bi bi-file-text"></i> Log Girişleri</h2>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <select class="form-select" id="deviceFilter">
+                        <option value="">Tüm Cihazlar</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <input type="number" class="form-control" id="logLimit" value="100" placeholder="Kayıt Sayısı">
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-primary" onclick="loadRecentLogs()">
+                        <i class="bi bi-search"></i> Filtrele
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="logsTable">
+                            <thead>
+                                <tr>
+                                    <th>Zaman</th>
+                                    <th>Cihaz</th>
+                                    <th>IP Adresi</th>
+                                    <th>Mesaj Önizleme</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logsTableBody">
+                                <!-- Logs will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Devices Section -->
+        <div id="devices" class="section" style="display: none;">
+            <div class="row mb-4">
+                <div class="col">
+                    <h2><i class="bi bi-router"></i> Cihaz Yönetimi</h2>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="devicesTable">
+                            <thead>
+                                <tr>
+                                    <th>Cihaz ID</th>
+                                    <th>Ad</th>
+                                    <th>IP Adresi</th>
+                                    <th>Konum</th>
+                                    <th>Durum</th>
+                                    <th>Log Sayısı</th>
+                                    <th>Son Log</th>
+                                </tr>
+                            </thead>
+                            <tbody id="devicesTableBody">
+                                <!-- Devices will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Section -->
+        <div id="reports" class="section" style="display: none;">
+            <div class="row mb-4">
+                <div class="col">
+                    <h2><i class="bi bi-file-earmark-text"></i> Uyumluluk Raporları</h2>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Yeni Rapor Oluştur</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="reportForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Rapor Türü</label>
+                                    <select class="form-select" name="report_type" required>
+                                        <option value="daily">Günlük</option>
+                                        <option value="weekly">Haftalık</option>
+                                        <option value="monthly" selected>Aylık</option>
+                                        <option value="annual">Yıllık</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Başlangıç Tarihi</label>
+                                    <input type="date" class="form-control" name="start_date" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Bitiş Tarihi</label>
+                                    <input type="date" class="form-control" name="end_date" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-file-plus"></i> Rapor Oluştur
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Uyumluluk Skoru</h5>
+                        </div>
+                        <div class="card-body text-center">
+                            <div class="compliance-score">
+                                <h1 id="complianceScore" class="display-3 text-primary">-</h1>
+                                <p class="text-muted">5651 Kanunu Uyumluluk Skoru</p>
+                            </div>
+                            <button class="btn btn-outline-primary" onclick="loadComplianceScore()">
+                                <i class="bi bi-arrow-clockwise"></i> Yenile
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compliance Section -->
+        <div id="compliance" class="section" style="display: none;">
+            <div class="row mb-4">
+                <div class="col">
+                    <h2><i class="bi bi-check-circle"></i> 5651 Kanunu Uyumluluğu</h2>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Kanuni Gereklilikler</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="compliance-checklist">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <div>
+                                        <strong>Veri Saklama:</strong><br>
+                                        <small>Loglar 2 yıl süreyle saklanmaktadır</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <div>
+                                        <strong>Dijital İmzalama:</strong><br>
+                                        <small>Tüm log dosyaları dijital olarak imzalanmaktadır</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <div>
+                                        <strong>Zaman Damgası:</strong><br>
+                                        <small>RFC 3161 uyumlu zaman damgası eklenmektedir</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <div>
+                                        <strong>Erişim Kontrolü:</strong><br>
+                                        <small>Tüm erişimler loglanmaktadır</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <div>
+                                        <strong>Bütünlük Kontrolü:</strong><br>
+                                        <small>SHA-256 hash ile dosya bütünlüğü korunmaktadır</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Sistem Detayları</h5>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row">
+                                <dt class="col-sm-6">Sistem Versiyonu:</dt>
+                                <dd class="col-sm-6">LogMaster v1.0.0</dd>
+                                
+                                <dt class="col-sm-6">İmza Algoritması:</dt>
+                                <dd class="col-sm-6">RSA-SHA256</dd>
+                                
+                                <dt class="col-sm-6">Şifreleme:</dt>
+                                <dd class="col-sm-6">AES-256-GCM</dd>
+                                
+                                <dt class="col-sm-6">Sıkıştırma:</dt>
+                                <dd class="col-sm-6">GZIP</dd>
+                                
+                                <dt class="col-sm-6">Veritabanı:</dt>
+                                <dd class="col-sm-6">PostgreSQL</dd>
+                                
+                                <dt class="col-sm-6">Saklama Süresi:</dt>
+                                <dd class="col-sm-6">730 gün (2 yıl)</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light py-3 mt-5">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col">
+                    <small class="text-muted">
+                        LogMaster - 5651 Sayılı Kanun Uyumlu Log Yönetim Sistemi
+                    </small>
+                </div>
+                <div class="col-auto">
+                    <small class="text-muted">
+                        Son Güncelleme: <span id="lastUpdate">-</span>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html> 

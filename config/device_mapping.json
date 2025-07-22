@@ -1,0 +1,74 @@
+{
+  "devices": {
+    "192.168.1.10": {
+      "device_id": "device-001",
+      "name": "Firewall-Main-Gateway",
+      "location": "Data Center 1",
+      "department": "IT",
+      "model": "Fortigate 100F",
+      "serial": "FG100F001",
+      "contact": "admin@company.com",
+      "timezone": "Europe/Istanbul"
+    },
+    "192.168.1.11": {
+      "device_id": "device-002", 
+      "name": "Firewall-DMZ",
+      "location": "Data Center 1",
+      "department": "IT",
+      "model": "Fortigate 60F",
+      "serial": "FG60F001",
+      "contact": "admin@company.com",
+      "timezone": "Europe/Istanbul"
+    },
+    "192.168.1.12": {
+      "device_id": "device-003",
+      "name": "Firewall-Branch-Office-1",
+      "location": "Istanbul Branch",
+      "department": "IT",
+      "model": "SonicWall TZ570",
+      "serial": "SW570001",
+      "contact": "istanbul@company.com",
+      "timezone": "Europe/Istanbul"
+    }
+  },
+  "ip_ranges": {
+    "192.168.1.0/24": {
+      "description": "Main Data Center",
+      "auto_assign": true,
+      "device_prefix": "device-dc1-"
+    },
+    "192.168.2.0/24": {
+      "description": "Branch Offices",
+      "auto_assign": true, 
+      "device_prefix": "device-branch-"
+    },
+    "10.0.0.0/8": {
+      "description": "Internal Network",
+      "auto_assign": true,
+      "device_prefix": "device-internal-"
+    }
+  },
+  "device_templates": {
+    "fortigate": {
+      "log_format": "syslog",
+      "parse_pattern": "<%pri%>%timestamp% %hostname% %msg%",
+      "required_fields": ["timestamp", "source_ip", "dest_ip", "action", "protocol"]
+    },
+    "sonicwall": {
+      "log_format": "syslog",
+      "parse_pattern": "<%pri%>%timestamp% %hostname% %msg%",
+      "required_fields": ["timestamp", "source_ip", "dest_ip", "action", "protocol"]
+    },
+    "paloalto": {
+      "log_format": "syslog",
+      "parse_pattern": "<%pri%>%timestamp% %hostname% %msg%",
+      "required_fields": ["timestamp", "source_ip", "dest_ip", "action", "protocol"]
+    }
+  },
+  "auto_discovery": {
+    "enabled": true,
+    "scan_interval": 3600,
+    "max_devices": 400,
+    "notification_enabled": true
+  }
+} 

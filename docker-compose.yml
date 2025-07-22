@@ -1,0 +1,151 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: logmaster-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: logmaster
+      POSTGRES_USER: logmaster
+      POSTGRES_PASSWORD: LogMaster2024!
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=tr_TR.UTF-8"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/database_setup.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - logmaster-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U logmaster"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # LogMaster Application
+  logmaster:
+    build: .
+    container_name: logmaster-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: logmaster
+      DB_USER: logmaster
+      DB_PASSWORD: LogMaster2024!
+      LOGMASTER_ENV: production
+    volumes:
+      - logs_data:/opt/logmaster/logs
+      - signed_data:/opt/logmaster/signed
+      - archived_data:/opt/logmaster/archived
+      - reports_data:/opt/logmaster/reports
+      - certs_data:/opt/logmaster/certs
+      - app_logs:/var/log/logmaster
+    ports:
+      - "80:80"
+      - "443:443"
+      - "514:514/udp"  # Syslog
+      - "8000:8000"    # Web API (development)
+    networks:
+      - logmaster-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/system/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Redis Cache (Optional)
+  redis:
+    image: redis:7-alpine
+    container_name: logmaster-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass LogMaster2024!
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - logmaster-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Elasticsearch (Optional - for log search)
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: logmaster-elasticsearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - xpack.security.enabled=false
+      - xpack.security.enrollment.enabled=false
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - logmaster-network
+    profiles:
+      - full  # Optional service
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Grafana Monitoring (Optional)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: logmaster-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: LogMaster2024!
+      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./docker/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning
+    ports:
+      - "3000:3000"
+    networks:
+      - logmaster-network
+    profiles:
+      - monitoring  # Optional service
+
+volumes:
+  postgres_data:
+    driver: local
+  logs_data:
+    driver: local
+  signed_data:
+    driver: local
+  archived_data:
+    driver: local
+  reports_data:
+    driver: local
+  certs_data:
+    driver: local
+  app_logs:
+    driver: local
+  redis_data:
+    driver: local
+  elasticsearch_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+networks:
+  logmaster-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16 

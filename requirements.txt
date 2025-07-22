@@ -1,0 +1,102 @@
+# LogMaster - 5651 Kanunu Uyumlu Log Yönetim Sistemi
+# Python Bağımlılıkları
+
+# Kriptografi ve güvenlik
+cryptography>=41.0.0
+pyOpenSSL>=23.0.0
+pycryptodome>=3.19.0
+
+# Veritabanı
+psycopg2-binary>=2.9.0
+SQLAlchemy>=2.0.0
+alembic>=1.12.0
+
+# Asenkron programlama
+asyncio
+aiofiles>=23.0.0
+aiohttp>=3.8.0
+
+# Web framework (yönetim paneli için)
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+jinja2>=3.1.0
+python-multipart>=0.0.6
+
+# Logging ve izleme
+structlog>=23.0.0
+colorama>=0.4.6
+
+# Tarih ve zaman işlemleri
+python-dateutil>=2.8.0
+pytz>=2023.3
+
+# JSON ve veri işleme
+orjson>=3.9.0
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+
+# Dosya işlemleri
+watchdog>=3.0.0
+pathspec>=0.11.0
+
+# HTTP istekleri
+requests>=2.31.0
+httpx>=0.24.0
+
+# Yapılandırma
+python-dotenv>=1.0.0
+toml>=0.10.2
+
+# Raporlama
+reportlab>=4.0.0
+matplotlib>=3.7.0
+pandas>=2.0.0
+openpyxl>=3.1.0
+
+# E-posta
+smtplib
+email-validator>=2.0.0
+
+# Sistem ve işletim sistemi
+psutil>=5.9.0
+schedule>=1.2.0
+
+# Test
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+
+# Linting ve formatlama
+black>=23.0.0
+flake8>=6.0.0
+isort>=5.12.0
+mypy>=1.5.0
+
+# Güvenlik taraması
+bandit>=1.7.5
+safety>=2.3.0
+
+# Performans
+memory-profiler>=0.60.0
+py-spy>=0.3.14
+
+# Sıkıştırma
+gzip
+lzma
+brotli>=1.0.9
+
+# Zaman damgası (RFC 3161)
+# Not: Özel RFC 3161 kütüphanesi gerekebilir
+asn1crypto>=1.5.0
+
+# Redis (cache için opsiyonel)
+redis>=4.6.0
+
+# Elasticsearch (arama için opsiyonel)
+elasticsearch>=8.9.0
+
+# Celery (arka plan görevleri için opsiyonel)
+celery>=5.3.0
+
+# Sentry (hata izleme için opsiyonel)
+sentry-sdk>=1.32.0 
