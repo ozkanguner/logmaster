@@ -6,6 +6,8 @@ LogMaster v2 implements a comprehensive data flow architecture optimized for hig
 
 ## 🔄 Complete Data Flow Diagram
 
+### 🏢 Enterprise-Level Architecture (Full Implementation)
+
 ```mermaid
 graph LR
     subgraph "LOG SOURCES"
@@ -135,6 +137,84 @@ graph LR
     class TSA,LDAP,SMTP,BACKUP external
     class METRICS,ALERTS,HEALTH monitor
 ```
+
+## 🚀 MVP Data Flow Diagram (Simplified for Quick Start)
+
+```mermaid
+graph TD
+    subgraph "NETWORK DEVICES"
+        FW["🔥 Firewall<br/>192.168.1.10"]
+        RTR["🔀 Router<br/>192.168.1.1"]
+        SW["🔌 Switch<br/>192.168.1.20"]
+    end
+    
+    subgraph "LOGMASTER CORE"
+        SYSLOG["📡 Syslog Server<br/>Python AsyncIO<br/>Port 514 UDP"]
+        PARSER["🔄 Log Parser<br/>Regex + JSON"]
+        STORAGE["💾 Combined Storage<br/>Files + PostgreSQL"]
+        API["🚀 FastAPI Backend<br/>Port 8000"]
+        WEB["⚛️ React Frontend<br/>Real-time Log Viewer"]
+    end
+    
+    subgraph "DEVICE MANAGEMENT"
+        REG["📝 Device Registration<br/>MAC → Name Mapping"]
+        AUTH["🔐 Basic Authentication<br/>Username/Password"]
+    end
+    
+    subgraph "MVP FEATURES"
+        REALTIME["📺 Real-time Log Display"]
+        SEARCH["🔍 Log Search<br/>PostgreSQL Full-text"]
+        EXPORT["📤 Log Export<br/>CSV/JSON"]
+        BASIC_ALERTS["🔔 Basic Email Alerts"]
+    end
+    
+    %% Data Flow
+    FW --> SYSLOG
+    RTR --> SYSLOG
+    SW --> SYSLOG
+    
+    SYSLOG --> PARSER
+    PARSER --> STORAGE
+    STORAGE --> API
+    API --> WEB
+    
+    REG --> STORAGE
+    AUTH --> API
+    
+    API --> REALTIME
+    API --> SEARCH
+    API --> EXPORT
+    API --> BASIC_ALERTS
+    
+    classDef core fill:#e8f5e8,stroke:#4caf50,stroke-width:3px
+    classDef device fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
+    classDef feature fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    
+    class SYSLOG,PARSER,STORAGE,API,WEB core
+    class FW,RTR,SW,REG,AUTH device
+    class REALTIME,SEARCH,EXPORT,BASIC_ALERTS feature
+```
+
+### 📋 MVP vs Enterprise Comparison
+
+| Feature | MVP Implementation | Enterprise Implementation |
+|---------|-------------------|--------------------------|
+| **Storage** | PostgreSQL + Files | PostgreSQL + Elasticsearch + Files |
+| **Authentication** | Basic Username/Password | LDAP/AD + RBAC + 2FA |
+| **Search** | PostgreSQL Full-text | Elasticsearch Advanced Search |
+| **Alerts** | Basic Email | ML Anomaly Detection + SIEM |
+| **Compliance** | Basic File Retention | Digital Signatures + TSA + 5651 |
+| **UI** | Simple React Dashboard | Enterprise Dashboard + Mobile |
+| **Processing** | Synchronous | Async Queue + Workers |
+| **Monitoring** | Basic Health Checks | Prometheus + Grafana |
+
+### 🎯 MVP Success Criteria
+- ✅ **Receive logs** from network devices via UDP 514
+- ✅ **Parse and store** logs in real-time
+- ✅ **Display logs** in web interface with search
+- ✅ **Register devices** by MAC address
+- ✅ **Export logs** for basic compliance
+- ✅ **Handle 1000+ logs/second** without data loss
 
 ## 🔄 Log Processing Pipeline
 
