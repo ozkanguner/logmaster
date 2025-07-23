@@ -6,7 +6,7 @@
 
 ## 🎯 **Sistem Mimarisi**
 
-### **🏢 Multi-Tenant Hotel Chain Architecture**
+### **🏢 Multi-Tenant Hotel Chain Architecture (1000+ EPS)**
 
 ```mermaid
 graph TB
@@ -29,12 +29,17 @@ graph TB
         end
     end
     
-    subgraph "LOGMASTER SYSTEM"
+    subgraph "HIGH-PERFORMANCE LOGMASTER SYSTEM"
         subgraph "Collection Layer"
             SYSLOG["📡 Syslog Collector<br/>UDP 514<br/>1000+ EPS"]
         end
         
-        subgraph "Processing Layer"
+        subgraph "Queue & Processing"
+            REDIS_QUEUE["⚡ Redis Queue<br/>High-throughput message broker"]
+            WORKER_1["🔄 Log Worker 1<br/>Async processing"]
+            WORKER_2["🔄 Log Worker 2<br/>Async processing"] 
+            WORKER_3["🔄 Log Worker 3<br/>Async processing"]
+            WORKER_4["🔄 Log Worker 4<br/>Async processing"]
             HOTEL_ROUTER["🏨 Hotel Router<br/>Tenant Identification"]
             LOG_PARSER["🔄 Log Parser<br/>Mikrotik + Generic"]
             ENRICHER["🎯 Log Enricher<br/>Hotel + Device Info"]
@@ -44,6 +49,7 @@ graph TB
             POSTGRES["🐘 PostgreSQL<br/>Metadata + Users + Devices"]
             ELASTICSEARCH["🔍 Elasticsearch<br/>Log Search + Analytics"]
             FILES["📁 File Storage<br/>Raw Logs + Archives"]
+            REDIS_CACHE["⚡ Redis Cache<br/>Sessions + Hot data"]
         end
         
         subgraph "Compliance Layer"
@@ -53,13 +59,14 @@ graph TB
         end
         
         subgraph "API Layer"
-            AUTH_API["🔐 Authentication<br/>JWT + RBAC"]
+            AUTH_API["🔐 Authentication<br/>JWT + RBAC + Redis Sessions"]
             TENANT_API["🏨 Tenant API<br/>Hotel-filtered data"]
             DEVICE_API["📱 Device Management<br/>Add/Edit Mikrotik"]
+            REALTIME_API["📡 Real-time API<br/>WebSocket + Redis Pub/Sub"]
         end
         
         subgraph "Frontend"
-            WEB_DASHBOARD["🌐 Web Dashboard<br/>React + Real-time"]
+            WEB_DASHBOARD["🌐 Web Dashboard<br/>React + Real-time WebSocket"]
         end
     end
     
@@ -68,15 +75,30 @@ graph TB
     MIKROTIK_B --> SYSLOG
     MIKROTIK_C --> SYSLOG
     
-    %% Processing Flow
-    SYSLOG --> HOTEL_ROUTER
+    %% High-Performance Processing Flow
+    SYSLOG --> REDIS_QUEUE
+    REDIS_QUEUE --> WORKER_1
+    REDIS_QUEUE --> WORKER_2
+    REDIS_QUEUE --> WORKER_3
+    REDIS_QUEUE --> WORKER_4
+    
+    WORKER_1 --> HOTEL_ROUTER
+    WORKER_2 --> HOTEL_ROUTER
+    WORKER_3 --> HOTEL_ROUTER
+    WORKER_4 --> HOTEL_ROUTER
+    
     HOTEL_ROUTER --> LOG_PARSER
     LOG_PARSER --> ENRICHER
     
-    %% Storage
+    %% Storage Distribution
     ENRICHER --> POSTGRES
     ENRICHER --> ELASTICSEARCH
     ENRICHER --> FILES
+    ENRICHER --> REDIS_CACHE
+    
+    %% Real-time Updates
+    ENRICHER --> REALTIME_API
+    REALTIME_API --> WEB_DASHBOARD
     
     %% Compliance
     FILES --> DAILY_SIGNER
@@ -86,8 +108,12 @@ graph TB
     %% API Access
     POSTGRES --> TENANT_API
     ELASTICSEARCH --> TENANT_API
+    REDIS_CACHE --> TENANT_API
     TENANT_API --> AUTH_API
     DEVICE_API --> POSTGRES
+    
+    %% Session Management
+    AUTH_API --> REDIS_CACHE
     
     %% User Access
     CHAIN_ADMIN --> WEB_DASHBOARD
@@ -98,14 +124,17 @@ graph TB
     WEB_DASHBOARD --> AUTH_API
     WEB_DASHBOARD --> TENANT_API
     WEB_DASHBOARD --> DEVICE_API
+    WEB_DASHBOARD --> REALTIME_API
     
     classDef hotel fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
-    classDef system fill:#e8f5e8,stroke:#4caf50,stroke-width:2px
+    classDef performance fill:#e8f5e8,stroke:#4caf50,stroke-width:3px
+    classDef redis fill:#ffebee,stroke:#f44336,stroke-width:3px
     classDef compliance fill:#fff3e0,stroke:#ff9800,stroke-width:2px
     classDef api fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
     
     class MIKROTIK_A,MIKROTIK_B,MIKROTIK_C,HOTEL_A_USER,HOTEL_B_USER,HOTEL_C_USER hotel
-    class SYSLOG,HOTEL_ROUTER,LOG_PARSER,ENRICHER,POSTGRES,ELASTICSEARCH,FILES system
+    class SYSLOG,WORKER_1,WORKER_2,WORKER_3,WORKER_4,HOTEL_ROUTER,LOG_PARSER,ENRICHER performance
+    class REDIS_QUEUE,REDIS_CACHE,REALTIME_API redis
     class DAILY_SIGNER,TSA_CLIENT,COMPLIANCE_ENGINE compliance
     class AUTH_API,TENANT_API,DEVICE_API,WEB_DASHBOARD api
 ```
@@ -225,192 +254,324 @@ CREATE TABLE compliance_signatures (
 );
 ```
 
-## ⚡ **Performance Targets**
+## ⚡ **High Performance Data Flow (1000+ EPS)**
 
-### **1000+ Events/Second Specification**
+### **Redis-Powered Processing Pipeline**
+```
+📡 Syslog UDP 514 → ⚡ Redis Queue → 🔄 4x Parallel Workers → 🏨 Hotel Router → 💾 Multi-Storage
+```
+
+### **Performance Optimizations with Redis**
+```python
+# 1. High-throughput log collection
+async def collect_logs():
+    while True:
+        log_data = await receive_udp_log()
+        # Push to Redis queue (non-blocking)
+        await redis.lpush("log_queue", json.dumps(log_data))
+
+# 2. Parallel processing workers
+async def log_worker(worker_id):
+    while True:
+        # Batch fetch from Redis queue
+        batch = await redis.lrange("log_queue", 0, 99)
+        if batch:
+            await redis.ltrim("log_queue", 100, -1)
+            await process_log_batch(batch, worker_id)
+
+# 3. Real-time updates via Redis Pub/Sub
+async def publish_real_time_log(log_entry):
+    hotel_id = log_entry['hotel_id']
+    await redis.publish(f"hotel_{hotel_id}_logs", json.dumps(log_entry))
+
+# 4. Session management with Redis
+async def get_user_session(session_token):
+    session_data = await redis.get(f"session_{session_token}")
+    return json.loads(session_data) if session_data else None
+```
+
+## 📊 **Performance Targets (1000+ EPS)**
+
+### **System Performance Specifications**
 ```yaml
-System Performance:
-  target_eps: 1000+
-  peak_eps: 2000
-  response_time: <500ms
+Target Performance:
+  events_per_second: 1000+
+  peak_events_per_second: 2000
+  processing_latency: <100ms (P95)
+  response_time: <200ms
   uptime: 99.9%
+  concurrent_users: 50+
   
 Per Hotel Capacity:
   max_devices: 50
-  max_users: 20
-  storage_per_month: 100GB
+  max_users: 25
+  events_per_hotel: 200+ EPS
+  storage_per_month: 200GB
   retention_period: 2+ years
+
+Queue Performance:
+  redis_queue_depth: <1000 (normal)
+  redis_queue_max: 10000 (alert threshold)
+  worker_processing_rate: 250 EPS per worker
+  batch_size: 100 logs per batch
 ```
 
-### **Resource Requirements**
+### **Resource Requirements (1000+ EPS)**
 ```yaml
-Minimum Hardware:
-  CPU: 16 cores
-  RAM: 64GB
-  Storage: 2TB SSD
-  Network: 1Gbps
-  
 Recommended Hardware:
-  CPU: 32 cores
-  RAM: 128GB
-  Storage: 4TB NVMe SSD
-  Network: 10Gbps
+  CPU: 32 cores (3.0+ GHz)
+  RAM: 128GB DDR4
+  Storage: 4TB NVMe SSD (50K+ IOPS)
+  Network: 10Gbps Ethernet
+  
+Service Resource Allocation:
+  Redis Queue: 16GB RAM, 4 cores
+  Redis Cache: 8GB RAM, 2 cores
+  Log Workers: 32GB RAM, 16 cores (4x8GB, 4x4cores)
+  PostgreSQL: 32GB RAM, 8 cores
+  Elasticsearch: 24GB RAM, 6 cores
+  API Services: 16GB RAM, 4 cores
 ```
 
-## 🔐 **Security & Multi-Tenancy**
+## 🔐 **Enhanced Security & Multi-Tenancy**
 
-### **Role-Based Access Control**
-```yaml
-Roles:
-  chain_admin:
-    access: "All hotels"
-    permissions: ["create_hotel", "manage_users", "view_all_logs"]
-    
-  hotel_manager:
-    access: "Own hotel only"
-    permissions: ["manage_devices", "view_own_logs", "export_data"]
-    
-  hotel_viewer:
-    access: "Own hotel only" 
-    permissions: ["view_own_logs"]
-```
-
-### **Data Isolation**
+### **Redis-Secured Sessions**
 ```python
-# API seviyesinde tenant filtresi
-@app.get("/api/logs")
-def get_logs(user: User):
-    if user.role == 'chain_admin':
-        return get_all_logs()
-    else:
-        return get_logs_by_hotel(user.hotel_id)
-
-# Database seviyesinde partitioning
-CREATE TABLE log_entries_hotel_a PARTITION OF log_entries
-    FOR VALUES IN ('hotel-a-uuid');
+# Hotel-aware session management
+class HotelSessionManager:
+    async def create_session(self, user_id, hotel_id):
+        session_token = generate_secure_token()
+        session_data = {
+            'user_id': user_id,
+            'hotel_id': hotel_id,
+            'created_at': datetime.now().isoformat(),
+            'permissions': await get_user_permissions(user_id, hotel_id)
+        }
+        
+        # Store in Redis with TTL
+        await redis.setex(
+            f"session_{session_token}",
+            3600,  # 1 hour TTL
+            json.dumps(session_data)
+        )
+        return session_token
+    
+    async def validate_hotel_access(self, session_token, requested_hotel_id):
+        session = await redis.get(f"session_{session_token}")
+        if not session:
+            return False
+            
+        session_data = json.loads(session)
+        user_hotel_id = session_data.get('hotel_id')
+        
+        # Chain admin can access all hotels
+        if session_data.get('role') == 'chain_admin':
+            return True
+            
+        # Hotel manager can only access own hotel
+        return user_hotel_id == requested_hotel_id
 ```
 
-## ⚖️ **5651 Turkish Law Compliance**
+### **Real-time Hotel Isolation**
+```python
+# Redis Pub/Sub for real-time updates
+class RealTimeManager:
+    async def subscribe_hotel_logs(self, hotel_id, websocket):
+        channel = f"hotel_{hotel_id}_logs"
+        
+        # Subscribe to hotel-specific channel
+        pubsub = redis.pubsub()
+        await pubsub.subscribe(channel)
+        
+        async for message in pubsub.listen():
+            if message['type'] == 'message':
+                log_data = json.loads(message['data'])
+                await websocket.send_text(json.dumps(log_data))
+    
+    async def publish_log_to_hotel(self, log_entry):
+        hotel_id = log_entry['hotel_id']
+        channel = f"hotel_{hotel_id}_logs"
+        
+        # Only publish to relevant hotel channel
+        await redis.publish(channel, json.dumps(log_entry))
+```
 
-### **Digital Signature Process**
+## 🚀 **Deployment Options**
+
+### **🎯 High Performance Production (1000+ EPS)**
 ```yaml
-Daily Process:
-  1. Günlük log dosyası oluştur (hotel bazlı)
-  2. SHA-256 hash hesapla
-  3. RSA-256 ile imzala
-  4. TSA'dan zaman damgası al
-  5. İmza veritabanına kaydet
-  6. Dosyayı arşivle
+# docker-compose.production.yml
+version: '3.8'
+services:
+  # Log Collection
+  logmaster-syslog:
+    image: logmaster/syslog:latest
+    ports:
+      - "514:514/udp"
+    environment:
+      - REDIS_QUEUE_URL=redis://redis-queue:6379
+    deploy:
+      replicas: 2
+      
+  # Redis Services
+  redis-queue:
+    image: redis:7-alpine
+    command: redis-server --maxmemory 16gb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-queue-data:/data
+    
+  redis-cache:
+    image: redis:7-alpine  
+    command: redis-server --maxmemory 8gb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-cache-data:/data
+  
+  # Processing Workers
+  logmaster-worker-1:
+    image: logmaster/worker:latest
+    environment:
+      - WORKER_ID=1
+      - REDIS_QUEUE_URL=redis://redis-queue:6379
+      - REDIS_CACHE_URL=redis://redis-cache:6379
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+          cpus: '4'
+          
+  logmaster-worker-2:
+    image: logmaster/worker:latest
+    environment:
+      - WORKER_ID=2
+      - REDIS_QUEUE_URL=redis://redis-queue:6379
+      - REDIS_CACHE_URL=redis://redis-cache:6379
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+          cpus: '4'
+          
+  logmaster-worker-3:
+    image: logmaster/worker:latest
+    environment:
+      - WORKER_ID=3
+      - REDIS_QUEUE_URL=redis://redis-queue:6379
+      - REDIS_CACHE_URL=redis://redis-cache:6379
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+          cpus: '4'
+          
+  logmaster-worker-4:
+    image: logmaster/worker:latest
+    environment:
+      - WORKER_ID=4
+      - REDIS_QUEUE_URL=redis://redis-queue:6379
+      - REDIS_CACHE_URL=redis://redis-cache:6379
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+          cpus: '4'
+  
+  # API Services
+  logmaster-api:
+    image: logmaster/api:latest
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@postgresql:5432/logmaster
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - REDIS_CACHE_URL=redis://redis-cache:6379
+      - REDIS_QUEUE_URL=redis://redis-queue:6379
+    ports:
+      - "8000:8000"
+    deploy:
+      replicas: 2
+      
+  # Storage Services
+  postgresql:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: logmaster
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_SHARED_BUFFERS: 32GB
+      POSTGRES_EFFECTIVE_CACHE_SIZE: 64GB
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          memory: 32G
+          cpus: '8'
+          
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms24g -Xmx24g"
+      - xpack.security.enabled=false
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    deploy:
+      resources:
+        limits:
+          memory: 24G
+          cpus: '6'
+  
+  # Frontend
+  logmaster-web:
+    image: logmaster/web:latest
+    ports:
+      - "3000:3000"
+      
+  # Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - logmaster-api
+      - logmaster-web
 
-Monthly Process:
-  1. Aylık compliance raporu oluştur
-  2. Tüm günlük imzaları doğrula
-  3. Eksik/hatalı kayıtları tespit et
-  4. Yasal format export hazırla
+volumes:
+  redis-queue-data:
+  redis-cache-data:
+  postgresql-data:
+  elasticsearch-data:
 ```
 
-### **Audit Trail**
-```sql
--- Kullanıcı aktiviteleri
-CREATE TABLE audit_logs (
-    id UUID PRIMARY KEY,
-    hotel_id UUID,
-    user_id UUID,
-    action VARCHAR(100),
-    resource VARCHAR(100),
-    timestamp TIMESTAMP DEFAULT NOW(),
-    ip_address INET,
-    details JSONB
-);
-```
-
-## 🚀 **Deployment Architecture**
-
-### **Single Server Deployment**
+### **📊 Performance Monitoring**
 ```yaml
-Docker Compose:
-  services:
-    - logmaster-syslog (UDP collector)
-    - logmaster-processor (Log parser)
-    - logmaster-api (FastAPI backend)
-    - logmaster-web (React frontend)
-    - postgresql (Database)
-    - elasticsearch (Search)
-    - redis (Cache)
-    - nginx (Reverse proxy)
+# Performance metrics to track
+Redis Metrics:
+  - Queue depth (should be < 1000)
+  - Memory usage (should be < 80%)
+  - Commands per second
+  - Hit ratio (should be > 95%)
+
+Processing Metrics:
+  - Events per second (target: 1000+)
+  - Worker processing latency
+  - Queue processing time
+  - Error rate (should be < 0.1%)
+
+System Metrics:
+  - CPU usage (should be < 80%)
+  - Memory usage (should be < 90%)  
+  - Disk I/O (should handle 50K+ IOPS)
+  - Network throughput
 ```
 
-### **Scalable Deployment**
-```yaml
-Load Balanced:
-  - 2x API servers
-  - 2x Syslog collectors  
-  - 1x PostgreSQL cluster
-  - 1x Elasticsearch cluster
-  - 1x Redis cluster
-```
+Bu **Redis-powered high-performance** mimari ile LogMaster v2:
+- ⚡ **1000+ EPS guaranteed** - Redis queue ile yüksek throughput
+- 🔄 **Parallel processing** - 4 async worker ile eşzamanlı işlem
+- 📡 **Real-time updates** - Redis Pub/Sub ile anlık güncellemeler
+- 🏨 **Perfect isolation** - Hotel-aware session management
+- 🚀 **Scalable** - Worker sayısı artırılabilir
 
-## 📱 **User Interface Design**
-
-### **Chain Admin Dashboard**
-- 📊 **Overview**: Tüm oteller özet
-- 🏨 **Hotels**: Otel listesi ve yönetimi
-- 👥 **Users**: Kullanıcı yönetimi
-- 📈 **Analytics**: Zincir geneli istatistikler
-
-### **Hotel Manager Dashboard**
-- 📱 **Devices**: Kendi otelinin cihazları
-- 📋 **Logs**: Gerçek zamanlı log görüntüleme
-- 📊 **Reports**: Otel bazlı raporlar
-- ⚙️ **Settings**: Otel konfigürasyonu
-
-## 🎯 **Implementation Priority**
-
-### **Phase 1: Core MVP (2 weeks)**
-1. ✅ Basic syslog collection
-2. ✅ Hotel-device mapping
-3. ✅ Simple web interface
-4. ✅ PostgreSQL storage
-
-### **Phase 2: Multi-tenancy (2 weeks)**
-5. ✅ User authentication + RBAC
-6. ✅ Hotel data isolation
-7. ✅ Tenant-aware APIs
-8. ✅ Device management per hotel
-
-### **Phase 3: Compliance (2 weeks)**
-9. ✅ Daily file signing
-10. ✅ TSA integration
-11. ✅ Compliance reporting
-12. ✅ Audit trails
-
-### **Phase 4: Performance (1 week)**
-13. ✅ 1000+ EPS optimization
-14. ✅ Elasticsearch integration
-15. ✅ Real-time dashboard
-16. ✅ Monitoring + alerts
-
-## 📊 **Success Metrics**
-
-```yaml
-Technical Metrics:
-  - Log ingestion: 1000+ events/second ✅
-  - Response time: <500ms ✅
-  - Uptime: 99.9% ✅
-  - Data isolation: 100% ✅
-
-Business Metrics:
-  - Hotel onboarding: <1 hour ✅
-  - User setup: <5 minutes ✅
-  - Compliance reports: Daily automated ✅
-  - Storage efficiency: 2+ years retention ✅
-```
-
-Bu **temiz ve basit mimari** ile LogMaster v2:
-- 🏨 **Perfect multi-tenancy** - Otel zincirleri için ideal
-- ⚡ **1000+ EPS performance** - Yüksek performans garantisi  
-- ⚖️ **5651 compliance ready** - Yasal gereksinimler karşılanır
-- 🔐 **Enterprise security** - Güvenlik standartları
-- 📈 **Easy scalability** - Kolay büyüme
-
-**Sade, güçlü ve işlevsel!** 🚀
+**Production-ready for 1000+ EPS!** 🎉
