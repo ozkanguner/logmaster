@@ -5,13 +5,29 @@ Production-ready RSyslog 8.x server in Docker container with TLS support and mon
 ## 🚀 Quick Start
 
 ```bash
-# Install and run everything
-chmod +x install.sh test.sh
+# Option 1: Simple Installation (Recommended)
+chmod +x install-simple.sh test.sh
+./install-simple.sh
+
+# Option 2: Full Installation (May hang on MySQL)
+chmod +x install.sh test.sh  
 ./install.sh
 
 # Test everything  
 ./test.sh
 ```
+
+## ⚡ install-simple.sh vs install.sh
+
+| Feature | install-simple.sh | install.sh |
+|---------|-------------------|------------|
+| **MySQL Support** | ❌ Skipped | ✅ Included |
+| **Installation Time** | ⚡ 2-3 min | 🐌 5-10 min |
+| **Dependencies** | 🔧 Minimal | 📦 Full |
+| **Reliability** | ✅ Stable | ⚠️ May hang |
+| **5651 Compliance** | ✅ Yes | ✅ Yes |
+
+**Recommendation:** Use `install-simple.sh` for faster, more reliable deployment.
 
 ## 📦 What's Included
 
