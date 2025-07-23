@@ -21,7 +21,7 @@ TOTAL_TESTS=0
 
 print_test() {
     echo -e "${BLUE}[TEST]${NC} $1"
-    ((TOTAL_TESTS++))
+    TOTAL_TESTS=$((TOTAL_TESTS + 1))
 }
 
 print_pass() {
@@ -30,7 +30,7 @@ print_pass() {
 
 print_fail() {
     echo -e "${RED}[FAIL]${NC} $1"
-    ((FAILED_TESTS++))
+    FAILED_TESTS=$((FAILED_TESTS + 1))
 }
 
 print_warning() {
