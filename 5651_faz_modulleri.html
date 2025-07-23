@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5651 Loglama Sistemi - Faz ve Modül Planı</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 5px;
+        }
+
+        .phase-container {
+            padding: 30px;
+        }
+
+        .phase {
+            margin-bottom: 30px;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .phase:hover {
+            border-color: #3498db;
+            box-shadow: 0 10px 25px rgba(52, 152, 219, 0.1);
+        }
+
+        .phase-header {
+            padding: 20px 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .phase-1 .phase-header { background: #e3f2fd; color: #1976d2; }
+        .phase-2 .phase-header { background: #e8f5e8; color: #388e3c; }
+        .phase-3 .phase-header { background: #fff3e0; color: #f57c00; }
+        .phase-4 .phase-header { background: #f3e5f5; color: #7b1fa2; }
+        .phase-5 .phase-header { background: #ffebee; color: #d32f2f; }
+        .phase-6 .phase-header { background: #e0f2f1; color: #00796b; }
+
+        .phase-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+
+        .phase-duration {
+            background: rgba(255,255,255,0.8);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .phase-content {
+            display: none;
+            padding: 0 30px 30px;
+        }
+
+        .phase.active .phase-content {
+            display: block;
+        }
+
+        .phase.active .phase-header {
+            border-bottom: 2px solid rgba(0,0,0,0.1);
+        }
+
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .module {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .module:hover {
+            border-color: #3498db;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+                 .module-title {
+             font-size: 1.1rem;
+             font-weight: bold;
+             color: #2c3e50;
+             line-height: 1.3;
+         }
+
+         .module-title a {
+             text-decoration: none;
+             color: inherit;
+             transition: color 0.3s ease;
+         }
+
+         .module-title a:hover {
+             color: #1976d2;
+             text-decoration: underline;
+         }
+
+        .module-duration {
+            background: #e9ecef;
+            color: #495057;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            margin-left: 10px;
+        }
+
+        .module-description {
+            color: #6c757d;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .module-features {
+            list-style: none;
+        }
+
+        .module-features li {
+            padding: 3px 0;
+            font-size: 0.9rem;
+            color: #495057;
+        }
+
+        .module-features li:before {
+            content: "✓ ";
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .new-module {
+            border-left: 4px solid #e74c3c;
+            background: #fff5f5;
+        }
+
+        .new-badge {
+            position: absolute;
+            top: -10px;
+            right: 10px;
+            background: #e74c3c;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: inherit;
+            transition: transform 0.3s ease;
+        }
+
+        .phase.active .toggle-btn {
+            transform: rotate(180deg);
+        }
+
+        .legend {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 20px 30px;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+
+        .legend h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .legend-items {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+        }
+
+        .existing { background: #e9ecef; }
+        .new-tenant { background: #fff5f5; border: 2px solid #e74c3c; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔥 5651 Loglama Sistemi</h1>
+            <p>RSyslog Tabanlı Multi-Tenant Geliştirme Planı</p>
+        </div>
+
+                 <div class="stats">
+             <div class="stat-card">
+                 <div class="stat-number">6</div>
+                 <div>Faz</div>
+             </div>
+             <div class="stat-card">
+                 <div class="stat-number">32</div>
+                 <div>Modül</div>
+             </div>
+             <div class="stat-card">
+                 <div class="stat-number">8</div>
+                 <div>Yeni MT Modül</div>
+             </div>
+             <div class="stat-card">
+                 <div class="stat-number">27</div>
+                 <div>Hafta</div>
+             </div>
+         </div>
+
+         <!-- Sunucu Özellikleri -->
+         <div style="background: #f8f9fa; padding: 30px; margin: 0 30px; border-radius: 10px; border-left: 4px solid #28a745;">
+             <h3 style="color: #2c3e50; margin-bottom: 20px;">🖥️ Sunucu Özellikleri ve Performans Hedefleri</h3>
+             
+             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 25px;">
+                 <div>
+                     <h4 style="color: #495057; margin-bottom: 15px;">💻 Mevcut Sunucu</h4>
+                     <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                         <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                             <span>🔢 CPU:</span>
+                             <strong>40 vCPUs</strong>
+                         </div>
+                         <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                             <span>🧠 RAM:</span>
+                             <strong>64 GB</strong>
+                         </div>
+                         <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                             <span>💾 Storage:</span>
+                             <strong>1.024 TB</strong>
+                         </div>
+                         <div style="display: flex; justify-content: space-between;">
+                             <span>🌐 Network:</span>
+                             <strong>PORTAL_GROUP</strong>
+                         </div>
+                     </div>
+                 </div>
+
+                 <div>
+                     <h4 style="color: #495057; margin-bottom: 15px;">🎯 Performans Hedefleri</h4>
+                     <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                         <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                             <span>⚡ Log Throughput:</span>
+                             <strong style="color: #28a745;">5,000 EPS</strong>
+                         </div>
+                         <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                             <span>📊 Günlük Veri:</span>
+                             <strong>~42 GB/gün</strong>
+                         </div>
+                         <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                             <span>🔍 API Response:</span>
+                             <strong>&lt;100ms</strong>
+                         </div>
+                         <div style="display: flex; justify-content: space-between;">
+                             <span>📈 Uptime:</span>
+                             <strong>99.9%</strong>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+
+             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                 <div>
+                     <h4 style="color: #495057; margin-bottom: 15px;">✅ Kapasite Analizi</h4>
+                     <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                         <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                             <span>CPU Kullanımı:</span>
+                             <strong style="color: #28a745;">~15/40 vCPU (37%)</strong>
+                         </div>
+                         <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                             <span>RAM Kullanımı:</span>
+                             <strong style="color: #28a745;">~32/64 GB (50%)</strong>
+                         </div>
+                         <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                             <span>Storage Kapasitesi:</span>
+                             <strong style="color: #28a745;">24+ gün veri</strong>
+                         </div>
+                         <div style="display: flex; justify-content: space-between;">
+                             <span>Kapasite Durumu:</span>
+                             <strong style="color: #28a745;">FAZLASIYLA YETERLİ</strong>
+                         </div>
+                     </div>
+                 </div>
+
+                 <div>
+                     <h4 style="color: #495057; margin-bottom: 15px;">📅 Scaling Timeline</h4>
+                     <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                         <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                             <span>0-6 Ay (Dev):</span>
+                             <strong style="color: #28a745;">Upgrade Gereksiz</strong>
+                         </div>
+                         <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                             <span>6-12 Ay (Prod):</span>
+                             <strong style="color: #ffc107;">Storage +2TB</strong>
+                         </div>
+                         <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                             <span>1+ Yıl:</span>
+                             <strong style="color: #17a2b8;">Multi-server</strong>
+                         </div>
+                         <div style="display: flex; justify-content: space-between;">
+                             <span>Compliance:</span>
+                             <strong style="color: #28a745;">2 Yıl Saklama OK</strong>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+         </div>
+
+        <div class="legend">
+            <h3>📋 Modül Türleri</h3>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <div class="legend-color existing"></div>
+                    <span>Mevcut Modüller</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color new-tenant"></div>
+                    <span>Yeni Multi-Tenant Modülleri</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="phase-container">
+            <!-- FAZ 1 -->
+            <div class="phase phase-1 active">
+                <div class="phase-header" onclick="togglePhase(this)">
+                    <span class="phase-title">🏗️ FAZ 1: RSyslog Altyapısı ve Veri Toplama</span>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <span class="phase-duration">4-5 hafta</span>
+                        <button class="toggle-btn">▼</button>
+                    </div>
+                </div>
+                <div class="phase-content">
+                    <div class="modules-grid">
+                                                                                                   <div class="module">
+                              <div class="module-header">
+                                  <a href="1_1_rsyslog_kurulum.html" style="text-decoration: none; color: inherit;">
+                                      <span class="module-title">1.1 📊 RSyslog Server Kurulumu</span>
+                                  </a>
+                                  <span class="module-duration">1 hafta</span>
+                              </div>
+                            <div class="module-description">Production-ready RSyslog server kurulumu</div>
+                            <ul class="module-features">
+                                <li>UDP 514 ve TCP 6514 listener</li>
+                                <li>TLS güvenlik yapılandırması</li>
+                                <li>Basic monitoring setup</li>
+                            </ul>
+                        </div>
+
+                                                                                                   <div class="module new-module">
+                              <div class="new-badge">YENİ MT</div>
+                              <div class="module-header">
+                                  <span class="module-title">1.2 🏢 Tenant Database Schema</span>
+                                  <span class="module-duration">4 gün</span>
+                              </div>
+                             <div class="module-description">Multi-tenant veritabanı yapısı</div>
+                             <ul class="module-features">
+                                 <li>Tenant management tables</li>
+                                 <li>Device whitelist tables</li>
+                                 <li>Unauthorized access logging</li>
+                                 <li>Data isolation strategy</li>
+                                 <li>Cross-tenant security</li>
+                             </ul>
+                         </div>
+
+                                                                                                   <div class="module">
+                                                             <div class="module-header">
+                                   <span class="module-title">1.3 🔒 Güvenli Cihaz Kontrolü</span>
+                                   <span class="module-duration">1 hafta</span>
+                               </div>
+                              <div class="module-description">Whitelist tabanlı cihaz kayıt ve filtreleme sistemi</div>
+                              <ul class="module-features">
+                                  <li>Manuel cihaz kaydı (MAC + IP + Ad)</li>
+                                  <li>Whitelist tabanlı log kabul</li>
+                                  <li>Kayıtsız cihaz otomatik reddi</li>
+                                  <li>Unauthorized access monitoring</li>
+                                  <li>Cihaz durum takibi (online/offline)</li>
+                              </ul>
+                          </div>
+
+                                                 <div class="module">
+                             <div class="module-header">
+                                 <span class="module-title">1.4 🔄 JSON Template ve Parser</span>
+                                 <span class="module-duration">1 hafta</span>
+                             </div>
+                            <div class="module-description">Structured log output ve parsing</div>
+                            <ul class="module-features">
+                                <li>JSON schema design</li>
+                                <li>Template performance < 0.5ms</li>
+                                <li>Parsing accuracy > 95%</li>
+                            </ul>
+                        </div>
+
+                                                 <div class="module new-module">
+                             <div class="new-badge">YENİ MT</div>
+                                                           <div class="module-header">
+                                  <span class="module-title">1.5 🔀 Tenant-aware RSyslog Config</span>
+                                  <span class="module-duration">3 gün</span>
+                              </div>
+                             <div class="module-description">Tenant bazlı log routing ve whitelist kontrolü</div>
+                             <ul class="module-features">
+                                 <li>Whitelist tabanlı log filtering</li>
+                                 <li>Tenant-based output routing</li>
+                                 <li>Unauthorized device rejection</li>
+                                 <li>Isolated log streams</li>
+                                 <li>Security alert generation</li>
+                             </ul>
+                         </div>
+
+                                                 <div class="module">
+                             <div class="module-header">
+                                 <span class="module-title">1.6 📤 Multi-Output Routing</span>
+                                 <span class="module-duration">1 hafta</span>
+                             </div>
+                            <div class="module-description">Akıllı log routing ve distribution</div>
+                            <ul class="module-features">
+                                <li>Redis, File, ES, PostgreSQL outputs</li>
+                                <li>Conditional routing rules</li>
+                                <li>Multi-output success > 99.9%</li>
+                            </ul>
+                        </div>
+
+                                                 <div class="module">
+                             <div class="module-header">
+                                 <span class="module-title">1.7 ⚡ Performance Tuning</span>
+                                 <span class="module-duration">4 gün</span>
+                             </div>
+                            <div class="module-description">Yüksek performans optimizasyonu</div>
+                            <ul class="module-features">
+                                <li>50,000+ EPS sustained</li>
+                                <li>Memory buffer optimization</li>
+                                <li>Zero message loss</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAZ 2 -->
+            <div class="phase phase-2">
+                <div class="phase-header" onclick="togglePhase(this)">
+                    <span class="phase-title">🔄 FAZ 2: Veri İşleme ve Depolama</span>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <span class="phase-duration">4-5 hafta</span>
+                        <button class="toggle-btn">▼</button>
+                    </div>
+                </div>
+                <div class="phase-content">
+                    <div class="modules-grid">
+                                                 <div class="module">
+                             <div class="module-header">
+                                 <span class="module-title">2.1 📊 PostgreSQL Veritabanı Şeması</span>
+                                 <span class="module-duration">1 hafta</span>
+                             </div>
+                            <div class="module-description">Scalable database design</div>
+                            <ul class="module-features">
+                                <li>Hotels, devices, users tables</li>
+                                <li>Log metadata ve archive tables</li>
+                                <li>5651 compliance tables</li>
+                            </ul>
+                        </div>
+
+                                                 <div class="module new-module">
+                             <div class="new-badge">YENİ MT</div>
+                             <div class="module-header">
+                                 <span class="module-title">2.2 🏢 Tenant Data Isolation</span>
+                                 <span class="module-duration">1 hafta</span>
+                             </div>
+                            <div class="module-description">Database, Elasticsearch, Redis tenant separation</div>
+                            <ul class="module-features">
+                                <li>Database tenant isolation</li>
+                                <li>ES index-per-tenant</li>
+                                <li>Redis namespace isolation</li>
+                            </ul>
+                        </div>
+
+                                                 <div class="module">
+                             <div class="module-header">
+                                 <span class="module-title">2.3 ⚡ Redis Queue ve Message Broker</span>
+                                 <span class="module-duration">1 hafta</span>
+                             </div>
+                            <div class="module-description">High-throughput message processing</div>
+                            <ul class="module-features">
+                                <li>Priority queues</li>
+                                <li>Dead letter handling</li>
+                                <li>Consumer groups</li>
+                            </ul>
+                        </div>
+
+                                                 <div class="module new-module">
+                             <div class="new-badge">YENİ MT</div>
+                             <div class="module-header">
+                                 <span class="module-title">2.4 🔀 Tenant Queue Management</span>
+                                 <span class="module-duration">3 gün</span>
+                             </div>
+                            <div class="module-description">Redis tenant namespacing</div>
+                            <ul class="module-features">
+                                <li>Tenant-specific queues</li>
+                                <li>Isolated message streams</li>
+                                <li>Cross-tenant prevention</li>
+                            </ul>
+                        </div>
+
+                                                 <div class="module">
+                             <div class="module-header">
+                                 <span class="module-title">2.5 🔄 Async Log Worker Engine</span>
+                                 <span class="module-duration">2 hafta</span>
+                             </div>
+                            <div class="module-description">Scalable log processing workers</div>
+                            <ul class="module-features">
+                                <li>Parser, Storage, Index workers</li>
+                                <li>Compliance workers</li>
+                                <li>FastAPI + Celery based</li>
+                            </ul>
+                        </div>
+
+                                                 <div class="module">
+                             <div class="module-header">
+                                 <span class="module-title">2.6 🔍 Elasticsearch Integration</span>
+                                 <span class="module-duration">1 hafta</span>
+                             </div>
+                            <div class="module-description">Search ve analytics engine</div>
+                            <ul class="module-features">
+                                <li>Time-based indices</li>
+                                <li>Bulk indexing</li>
+                                <li>Search templates</li>
+                            </ul>
+                        </div>
+
+                                                 <div class="module">
+                             <div class="module-header">
+                                 <span class="module-title">2.7 📁 File Storage ve Archiving</span>
+                                 <span class="module-duration">3 gün</span>
+                             </div>
+                            <div class="module-description">Long-term storage solution</div>
+                            <ul class="module-features">
+                                <li>Organized directory structure</li>
+                                <li>Compression ve archiving</li>
+                                <li>Compliance file storage</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAZ 3 -->
+            <div class="phase phase-3">
+                <div class="phase-header" onclick="togglePhase(this)">
+                    <span class="phase-title">🔐 FAZ 3: API Katmanı ve Kimlik Doğrulama</span>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <span class="phase-duration">4-5 hafta</span>
+                        <button class="toggle-btn">▼</button>
+                    </div>
+                </div>
+                <div class="phase-content">
+                    <div class="modules-grid">
+                                                 <div class="module">
+                             <div class="module-header">
+                                 <span class="module-title">3.1 👤 User Management API</span>
+                                 <span class="module-duration">1 hafta</span>
+                             </div>
+                            <div class="module-description">Comprehensive user management</div>
+                            <ul class="module-features">
+                                <li>CRUD operations</li>
+                                <li>Role-based access control</li>
+                                <li>Password policies</li>
+                            </ul>
+                        </div>
+
+                                                 <div class="module new-module">
+                             <div class="new-badge">YENİ MT</div>
+                             <div class="module-header">
+                                 <span class="module-title">3.2 🏢 Tenant Management API</span>
+                                 <span class="module-duration">1 hafta</span>
+                             </div>
+                            <div class="module-description">Tenant CRUD operations</div>
+                            <ul class="module-features">
+                                <li>Tenant lifecycle management</li>
+                                <li>Resource allocation</li>
+                                <li>Tenant configuration</li>
+                            </ul>
+                        </div>
+
+                        <div class="module">
+                            <div class="module-header">
+                                <span class="module-title">3.3 🔑 JWT Authentication</span>
+                                <span class="module-duration">1.5 hafta</span>
+                            </div>
+                            <div class="module-description">Secure authentication system</div>
+                            <ul class="module-features">
+                                <li>JWT with RS256 signatures</li>
+                                <li>Redis session store</li>
+                                <li>Token blacklisting</li>
+                            </ul>
+                        </div>
+
+                        <div class="module new-module">
+                            <div class="new-badge">YENİ MT</div>
+                            <div class="module-header">
+                                <span class="module-title">3.4 👥 Enhanced RBAC</span>
+                                <span class="module-duration">1 hafta</span>
+                            </div>
+                            <div class="module-description">Tenant-specific role management</div>
+                            <ul class="module-features">
+                                <li>Per-tenant role definitions</li>
+                                <li>Hierarchical permissions</li>
+                                <li>Dynamic role assignment</li>
+                            </ul>
+                        </div>
+
+                        <div class="module">
+                            <div class="module-header">
+                                <span class="module-title">3.5 🏨 Multi-Tenant System</span>
+                                <span class="module-duration">1 hafta</span>
+                            </div>
+                            <div class="module-description">Hotel-based data isolation</div>
+                            <ul class="module-features">
+                                <li>Automatic hotel detection</li>
+                                <li>API level filtering</li>
+                                <li>Resource isolation</li>
+                            </ul>
+                        </div>
+
+                        <div class="module new-module">
+                            <div class="new-badge">YENİ MT</div>
+                            <div class="module-header">
+                                <span class="module-title">3.6 🛡️ Cross-tenant Security</span>
+                                <span class="module-duration">4 gün</span>
+                            </div>
+                            <div class="module-description">Data leakage prevention</div>
+                            <ul class="module-features">
+                                <li>Query-level tenant filtering</li>
+                                <li>API endpoint protection</li>
+                                <li>Audit trail logging</li>
+                            </ul>
+                        </div>
+
+                                                 <div class="module">
+                             <div class="module-header">
+                                 <span class="module-title">3.7 📱 Device Management API</span>
+                                 <span class="module-duration">1 hafta</span>
+                             </div>
+                             <div class="module-description">Güvenli cihaz kayıt ve yönetim sistemi</div>
+                             <ul class="module-features">
+                                 <li>Manuel cihaz kaydı (Whitelist)</li>
+                                 <li>MAC/IP/Name validation</li>
+                                 <li>Device status monitoring</li>
+                                 <li>Unauthorized device detection</li>
+                                 <li>Bulk device import/export</li>
+                             </ul>
+                         </div>
+
+                        <div class="module">
+                            <div class="module-header">
+                                <span class="module-title">3.8 🔍 Search ve Analytics API</span>
+                                <span class="module-duration">1.5 hafta</span>
+                            </div>
+                            <div class="module-description">Powerful search capabilities</div>
+                            <ul class="module-features">
+                                <li>Advanced search filters</li>
+                                <li>Aggregations support</li>
+                                <li>Analytics endpoints</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAZ 4 -->
+            <div class="phase phase-4">
+                <div class="phase-header" onclick="togglePhase(this)">
+                    <span class="phase-title">🌐 FAZ 4: Web Arayüzü ve Dashboard</span>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <span class="phase-duration">5-6 hafta</span>
+                        <button class="toggle-btn">▼</button>
+                    </div>
+                </div>
+                <div class="phase-content">
+                    <div class="modules-grid">
+                        <div class="module">
+                            <div class="module-header">
+                                <span class="module-title">4.1 🎨 React Component Library</span>
+                                <span class="module-duration">1.5 hafta</span>
+                            </div>
+                            <div class="module-description">Reusable UI components</div>
+                            <ul class="module-features">
+                                <li>Material-UI theming</li>
+                                <li>Responsive design</li>
+                                <li>Accessibility compliance</li>
+                            </ul>
+                        </div>
+
+                        <div class="module new-module">
+                            <div class="new-badge">YENİ MT</div>
+                            <div class="module-header">
+                                <span class="module-title">4.2 🏢 Tenant Admin Panel</span>
+                                <span class="module-duration">1.5 hafta</span>
+                            </div>
+                            <div class="module-description">Multi-tenant UI management</div>
+                            <ul class="module-features">
+                                <li>Tenant dashboard</li>
+                                <li>Resource management UI</li>
+                                <li>Multi-tenant navigation</li>
+                            </ul>
+                        </div>
+
+                                                 <div class="module">
+                             <div class="module-header">
+                                 <span class="module-title">4.3 📊 Real-time Dashboard</span>
+                                 <span class="module-duration">2 hafta</span>
+                             </div>
+                             <div class="module-description">Live monitoring dashboard</div>
+                             <ul class="module-features">
+                                 <li>Live log stream</li>
+                                 <li>Security alerts (unauthorized devices)</li>
+                                 <li>Device status monitoring</li>
+                                 <li>Performance charts</li>
+                                 <li>WebSocket real-time updates</li>
+                             </ul>
+                         </div>
+
+                        <div class="module new-module">
+                            <div class="new-badge">YENİ MT</div>
+                            <div class="module-header">
+                                <span class="module-title">4.4 🚀 Tenant Onboarding Flow</span>
+                                <span class="module-duration">1 hafta</span>
+                            </div>
+                            <div class="module-description">Self-service tenant creation</div>
+                            <ul class="module-features">
+                                <li>Guided setup wizard</li>
+                                <li>Automated provisioning</li>
+                                <li>Configuration templates</li>
+                            </ul>
+                        </div>
+
+                        <div class="module">
+                            <div class="module-header">
+                                <span class="module-title">4.5 🔍 Advanced Log Viewer</span>
+                                <span class="module-duration">2 hafta</span>
+                            </div>
+                            <div class="module-description">Sophisticated log search interface</div>
+                            <ul class="module-features">
+                                <li>Advanced search builder</li>
+                                <li>Real-time filtering</li>
+                                <li>Export functionality</li>
+                            </ul>
+                        </div>
+
+                        <div class="module">
+                            <div class="module-header">
+                                <span class="module-title">4.6 📈 Analytics ve Reporting Panel</span>
+                                <span class="module-duration">1.5 hafta</span>
+                            </div>
+                            <div class="module-description">Business intelligence dashboard</div>
+                            <ul class="module-features">
+                                <li>Traffic analysis reports</li>
+                                <li>Time series charts</li>
+                                <li>Geographic maps</li>
+                            </ul>
+                        </div>
+
+                                                 <div class="module">
+                             <div class="module-header">
+                                 <span class="module-title">4.7 ⚙️ Admin Panel</span>
+                                 <span class="module-duration">1 hafta</span>
+                             </div>
+                             <div class="module-description">System administration interface</div>
+                             <ul class="module-features">
+                                 <li>User management</li>
+                                 <li>Device whitelist management</li>
+                                 <li>Unauthorized access alerts</li>
+                                 <li>System settings</li>
+                                 <li>Security audit logs</li>
+                             </ul>
+                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAZ 5 -->
+            <div class="phase phase-5">
+                <div class="phase-header" onclick="togglePhase(this)">
+                    <span class="phase-title">⚖️ FAZ 5: 5651 Uyumluluk ve Digital İmza</span>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <span class="phase-duration">3-4 hafta</span>
+                        <button class="toggle-btn">▼</button>
+                    </div>
+                </div>
+                <div class="phase-content">
+                    <div class="modules-grid">
+                        <div class="module">
+                            <div class="module-header">
+                                <span class="module-title">5.1 ✍️ Digital Signature System</span>
+                                <span class="module-duration">1 hafta</span>
+                            </div>
+                            <div class="module-description">RSA-256 digital signature implementation</div>
+                            <ul class="module-features">
+                                <li>Daily automatic signing</li>
+                                <li>Certificate management</li>
+                                <li>Signature verification</li>
+                            </ul>
+                        </div>
+
+                        <div class="module new-module">
+                            <div class="new-badge">YENİ MT</div>
+                            <div class="module-header">
+                                <span class="module-title">5.2 🔐 Tenant-specific Compliance</span>
+                                <span class="module-duration">1 hafta</span>
+                            </div>
+                            <div class="module-description">5651 per tenant</div>
+                            <ul class="module-features">
+                                <li>Per-tenant compliance rules</li>
+                                <li>Isolated compliance data</li>
+                                <li>Tenant-specific reports</li>
+                            </ul>
+                        </div>
+
+                        <div class="module">
+                            <div class="module-header">
+                                <span class="module-title">5.3 🕐 TSA Integration</span>
+                                <span class="module-duration">1 hafta</span>
+                            </div>
+                            <div class="module-description">Trusted timestamp integration</div>
+                            <ul class="module-features">
+                                <li>RFC 3161 compliant</li>
+                                <li>Multiple TSA providers</li>
+                                <li>Offline validation</li>
+                            </ul>
+                        </div>
+
+                        <div class="module new-module">
+                            <div class="new-badge">YENİ MT</div>
+                            <div class="module-header">
+                                <span class="module-title">5.4 ✍️ Isolated Digital Signatures</span>
+                                <span class="module-duration">4 gün</span>
+                            </div>
+                            <div class="module-description">Tenant-specific certificates</div>
+                            <ul class="module-features">
+                                <li>Per-tenant certificates</li>
+                                <li>Isolated signing process</li>
+                                <li>Tenant certificate management</li>
+                            </ul>
+                        </div>
+
+                        <div class="module">
+                            <div class="module-header">
+                                <span class="module-title">5.5 📋 5651 Compliance Reporting</span>
+                                <span class="module-duration">1.5 hafta</span>
+                            </div>
+                            <div class="module-description">Automated compliance reports</div>
+                            <ul class="module-features">
+                                <li>Daily log summary</li>
+                                <li>Monthly compliance reports</li>
+                                <li>XML/PDF export</li>
+                            </ul>
+                        </div>
+
+                        <div class="module">
+                            <div class="module-header">
+                                <span class="module-title">5.6 🔒 Archive ve Long-term Storage</span>
+                                <span class="module-duration">1 hafta</span>
+                            </div>
+                            <div class="module-description">Compliant long-term storage</div>
+                            <ul class="module-features">
+                                <li>Compressed storage</li>
+                                <li>Integrity verification</li>
+                                <li>Migration tools</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAZ 6 -->
+            <div class="phase phase-6">
+                <div class="phase-header" onclick="togglePhase(this)">
+                    <span class="phase-title">🚀 FAZ 6: Performans ve Monitoring</span>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <span class="phase-duration">2-3 hafta</span>
+                        <button class="toggle-btn">▼</button>
+                    </div>
+                </div>
+                <div class="phase-content">
+                    <div class="modules-grid">
+                        <div class="module">
+                            <div class="module-header">
+                                <span class="module-title">6.1 ⚡ Redis Cache Optimization</span>
+                                <span class="module-duration">4 gün</span>
+                            </div>
+                            <div class="module-description">Performance acceleration</div>
+                            <ul class="module-features">
+                                <li>Query result caching</li>
+                                <li>Session caching</li>
+                                <li>90%+ hit rate target</li>
+                            </ul>
+                        </div>
+
+                        <div class="module new-module">
+                            <div class="new-badge">YENİ MT</div>
+                            <div class="module-header">
+                                <span class="module-title">6.2 📊 Tenant Resource Monitoring</span>
+                                <span class="module-duration">1 hafta</span>
+                            </div>
+                            <div class="module-description">Usage tracking per tenant</div>
+                            <ul class="module-features">
+                                <li>Per-tenant metrics</li>
+                                <li>Resource usage tracking</li>
+                                <li>Performance analytics</li>
+                            </ul>
+                        </div>
+
+                                                 <div class="module">
+                             <div class="module-header">
+                                 <span class="module-title">6.3 📊 System Monitoring</span>
+                                 <span class="module-duration">1 hafta</span>
+                             </div>
+                             <div class="module-description">Comprehensive monitoring</div>
+                             <ul class="module-features">
+                                 <li>Prometheus metrics</li>
+                                 <li>Security metrics (unauthorized attempts)</li>
+                                 <li>Device status tracking</li>
+                                 <li>Grafana dashboards</li>
+                                 <li>Health checks + Security alerts</li>
+                             </ul>
+                         </div>
+
+                        <div class="module new-module">
+                            <div class="new-badge">YENİ MT</div>
+                            <div class="module-header">
+                                <span class="module-title">6.4 💰 Tenant Billing/Analytics</span>
+                                <span class="module-duration">4 gün</span>
+                            </div>
+                            <div class="module-description">Resource usage analytics</div>
+                            <ul class="module-features">
+                                <li>Usage-based billing</li>
+                                <li>Cost analytics</li>
+                                <li>Resource optimization suggestions</li>
+                            </ul>
+                        </div>
+
+                        <div class="module">
+                            <div class="module-header">
+                                <span class="module-title">6.5 🔧 DevOps ve Deployment</span>
+                                <span class="module-duration">1 hafta</span>
+                            </div>
+                            <div class="module-description">Production deployment</div>
+                            <ul class="module-features">
+                                <li>Docker containerization</li>
+                                <li>CI/CD pipeline</li>
+                                <li>Backup automation</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function togglePhase(header) {
+            const phase = header.parentElement;
+            phase.classList.toggle('active');
+        }
+
+        // İlk faz açık olsun
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelector('.phase-1').classList.add('active');
+        });
+    </script>
+</body>
+</html> 
