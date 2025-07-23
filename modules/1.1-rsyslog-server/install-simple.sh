@@ -39,8 +39,10 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Create directories
-RUN mkdir -p /etc/rsyslog.d /var/log/rsyslog /etc/ssl/rsyslog
+# Create directories with proper permissions
+RUN mkdir -p /etc/rsyslog.d /var/log/rsyslog /etc/ssl/rsyslog && \
+    chmod 755 /var/log/rsyslog && \
+    chown syslog:adm /var/log/rsyslog
 
 # Basic RSyslog config
 RUN echo 'module(load="imudp")' > /etc/rsyslog.d/10-udp.conf && \
