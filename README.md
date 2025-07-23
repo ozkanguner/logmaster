@@ -1,420 +1,359 @@
-# LogMaster v2 - Enterprise 5651 Compliance Log Management System
+# LogMaster v2 - Multi-Tenant Hotel Chain Log Management
 
-![LogMaster v2](https://img.shields.io/badge/LogMaster-v2.0-blue.svg)
-![License](https://img.shields.io/badge/License-Enterprise-green.svg)
-![Python](https://img.shields.io/badge/Python-3.8+-brightgreen.svg)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-blue.svg)
-![Performance](https://img.shields.io/badge/Performance-10K%20events%2Fsec-brightgreen.svg)
+## 🏨 **Otel Zincirleri İçin Özel Log Yönetim Sistemi**
 
-## 🚀 High-Performance Enterprise Log Management
+**LogMaster v2** - Türkiye 5651 Sayılı Kanun uyumlu, **multi-tenant** yapı ile **1000+ events/second** performansı.
 
-**LogMaster v2** - Türkiye 5651 Sayılı Kanun uyumlu, **saniyede 10,000+ event** işleyebilen enterprise log yönetim sistemi.
+[![🏨 Multi-Tenant](https://img.shields.io/badge/Architecture-Multi--Tenant-blue)](https://github.com/ozkanguner/5651-logging-v2)
+[![⚡ Performance](https://img.shields.io/badge/Performance-1000%2B%20EPS-green)](https://github.com/ozkanguner/5651-logging-v2)
+[![⚖️ 5651 Uyumlu](https://img.shields.io/badge/Compliance-5651%20Law-red)](https://github.com/ozkanguner/5651-logging-v2)
+[![📡 Mikrotik](https://img.shields.io/badge/Devices-Mikrotik%20Ready-orange)](https://github.com/ozkanguner/5651-logging-v2)
 
-### 🏨 **Multi-Tenant Hotel Chain Management**
+## 🎯 **Temel Özellikler**
 
-LogMaster v2, **otel zincirleri** için özel olarak tasarlanmış **multi-tenant** yapıya sahiptir:
+### 🏨 **Multi-Tenant Hotel Management**
+- **Hotel Chain Support** - Merkezi zincir yönetimi
+- **Perfect Data Isolation** - Her otel verisi tamamen ayrı
+- **Role-Based Access** - Chain Admin vs Hotel Manager
+- **Self-Service Device Management** - Her otel kendi cihazlarını ekler
 
-- 🏢 **Hotel Chain Support** - Merkezi zincir yönetimi
-- 🏨 **Hotel Isolation** - Her otel için ayrı veri alanı  
-- 👨‍💼 **Hotel Managers** - Sadece kendi otellerini yönetebilir
-- 📡 **Mikrotik Integration** - RouterOS cihazları için özel destek
-- 🔐 **Device Ownership** - Her otel kendi cihazlarını ekleyebilir
+### ⚡ **High Performance**
+- **1000+ Events/Second** - Garantili yüksek performans
+- **Real-time Processing** - Gerçek zamanlı log işleme
+- **Scalable Architecture** - Kolayca büyüyebilir
+- **Optimized Storage** - Hotel bazlı partitioning
 
-### 📡 **Mikrotik Device Support**
+### ⚖️ **5651 Turkish Law Compliance**
+- **Daily Digital Signatures** - RSA-256 günlük imzalama
+- **TSA Timestamping** - Yasal geçerli zaman damgası
+- **2+ Years Retention** - Uzun süreli arşivleme
+- **Audit Trail** - Tam aktivite izleme
 
-**Desteklenen Mikrotik Cihazları:**
-- ✅ RouterOS v7+ routers (CCR, RB series)
-- ✅ CRS series switches
-- ✅ CAP series access points  
-- ✅ Cloud Router Switch (CRS)
-- ✅ SNMP + SSH + API log collection
-- ✅ Auto-discovery ve device registration
+### 📡 **Mikrotik Integration**
+- **RouterOS Support** - Tam Mikrotik uyumluluğu
+- **Auto-Discovery** - Otomatik cihaz bulma
+- **SNMP/SSH/API** - Çoklu bağlantı yöntemleri
+- **Performance Monitoring** - Cihaz durumu izleme
 
-### 🔐 **Role-Based Multi-Tenancy**
+## 🏗️ **System Architecture**
 
-| Role | Erişim Seviyesi | Permissions |
-|------|----------------|-------------|
-| **Chain Admin** | Tüm oteller | Zincir yönetimi, tüm otellere erişim |
-| **Hotel Manager** | Tek otel | Kendi otelini yönetir, cihaz ekleyebilir |
-| **Hotel Viewer** | Tek otel | Sadece görüntüleme yetkisi |
-| **Device Admin** | Cihaz seviyesi | Mikrotik cihaz konfigürasyonu |
-
-### ⚡ Performance Targets by Architecture
-
-| Architecture | Events/Second | Server Count | Monthly Cost | Complexity |
-|--------------|---------------|--------------|--------------|------------|
-| **MVP** | 1K-2K | 1 | $500-1K | Very Simple ⭐ |
-| **Single Server HP** | **10K+** | **1** (Powerful) | **$3.5K-4.5K** | **Simple** 💰⭐ |
-| **Multi-Server HP** | 10K+ | 15+ | $8K-12K | Complex |
-| **Enterprise** | 50K+ | 50+ | $25K+ | Very Complex |
-
-### 🏗️ **System Architecture Options**
-
-#### 💻 Single Server High-Performance (RECOMMENDED)
+### **Multi-Tenant Flow**
 ```
-🐧 Ubuntu Server (64 cores, 256GB RAM)
-├── 📡 3x UDP Syslog Receivers (Port 514,515,516)
-├── ⚡ 4x Parallel Log Workers (AsyncIO)
-├── 🔍 Elasticsearch (Single node, 32GB heap)
-├── 🐘 PostgreSQL (Enterprise config)
-├── ⚡ Redis Cluster (Queue + Cache)
-├── 🚀 4x FastAPI APIs (Load balanced)
-├── 🌐 Nginx (Reverse proxy)
-├── ⚛️ React Frontend
-└── 📊 Prometheus + Grafana monitoring
+🏨 Hotel A (192.168.1.0/24) → 📡 Syslog Collector → 🏨 Hotel Router → 💾 Hotel A Data
+🏨 Hotel B (192.168.2.0/24) → 📡 Syslog Collector → 🏨 Hotel Router → 💾 Hotel B Data  
+🏨 Hotel C (192.168.3.0/24) → 📡 Syslog Collector → 🏨 Hotel Router → 💾 Hotel C Data
 ```
 
-**✅ Advantages:**
-- **65% Cost Savings** vs multi-server
-- **10 minute deployment** with Docker Compose
-- **Simple management** - Single system
-- **Low latency** - No network overhead
+### **Technology Stack**
+```yaml
+Backend:
+  - Python 3.11+ (FastAPI)
+  - PostgreSQL 15 (Multi-tenant)
+  - Elasticsearch 8 (Search)
+  - Redis 7 (Cache)
 
-## 🚀 Enterprise Features
+Frontend:
+  - React 18 + TypeScript
+  - Real-time WebSocket
+  - Responsive design
 
-### 🔐 Advanced Security
-- **MAC Address Authentication**: Device-level security with MAC-based registration
-- **JWT + RBAC**: Role-based access control with granular permissions
-- **Device-Specific Permissions**: Users can only access authorized devices
-- **Time/IP Restrictions**: Access control by time windows and IP ranges
-- **Digital Signatures**: RSA-256 + TSA timestamping for all logs
-
-### ⚖️ 5651 Turkish Law Compliance
-- **2-Year Retention**: Automatic log retention with legal compliance
-- **Digital Signing**: All logs digitally signed and timestamped
-- **Audit Trail**: Complete user activity tracking
-- **Court-Ready Exports**: Legal format exports for court proceedings
-- **Automated Reports**: Monthly compliance reports
-
-### 🏗️ Enterprise Architecture
-- **FastAPI Backend**: Modern Python async API framework
-- **React Frontend**: Professional web interface
-- **Multi-Database**: PostgreSQL + Elasticsearch + Redis
-- **Monitoring**: Grafana + Prometheus integration
-- **Containerized**: Full Docker deployment
-
-## 📁 Project Structure
-
-```
-5651-logging-v2/
-├── backend/                    # FastAPI Backend
-│   ├── app/
-│   │   ├── api/v1/            # API endpoints
-│   │   ├── auth/              # Authentication & authorization
-│   │   ├── compliance/        # 5651 compliance engine
-│   │   ├── core/              # Core configurations
-│   │   ├── models/            # Database models
-│   │   ├── schemas/           # Pydantic schemas
-│   │   └── services/          # Business logic
-│   ├── alembic/               # Database migrations
-│   └── tests/                 # Backend tests
-├── frontend/                  # React Frontend
-│   ├── src/
-│   │   ├── components/        # React components
-│   │   ├── pages/             # Page components
-│   │   ├── services/          # API services
-│   │   └── utils/             # Utilities
-│   └── public/                # Static files
-├── deployment/                # Deployment configs
-│   ├── docker/                # Docker files
-│   ├── scripts/               # Deployment scripts
-│   └── config/                # Configuration files
-├── infrastructure/            # Infrastructure configs
-│   ├── postgresql/            # PostgreSQL setup
-│   ├── elasticsearch/         # Elasticsearch config
-│   ├── redis/                 # Redis configuration
-│   └── grafana/              # Monitoring setup
-└── docs/                     # Documentation
-    ├── api/                  # API documentation
-    └── deployment/           # Deployment guides
+Infrastructure:
+  - Docker + Docker Compose
+  - Nginx (Reverse proxy)
+  - Prometheus + Grafana (Monitoring)
 ```
 
-## 🛡️ Security Features
+## 🚀 **Quick Start**
 
-### Device Authentication
-- MAC address based device registration
-- Device groups and hierarchical permissions
-- Device status tracking (active/inactive/pending)
-- Automatic device discovery and approval workflow
-
-### User Authorization
-- **Admin**: Full system access
-- **Network Manager**: Network device access
-- **Security Analyst**: Security log access only
-- **Location Manager**: Location-specific access
-- **Device Owner**: Specific device access
-- **Viewer**: Read-only access
-
-### Access Control Matrix
-| Role | View Logs | Export | Delete | Configure | Real-time | Archives |
-|------|-----------|---------|---------|-----------|-----------|----------|
-| Admin | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Network Manager | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Security Analyst | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ |
-| Location Manager | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ |
-| Device Owner | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Viewer | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
-
-## 📋 System Requirements
-
-### Production Environment
-- **OS**: Ubuntu 22.04 LTS
-- **Python**: 3.8+
-- **Node.js**: 16+
-- **Memory**: 16GB RAM minimum
-- **Storage**: 1TB SSD (for logs)
-- **Network**: Gigabit Ethernet
-
-### Database Requirements
-- **PostgreSQL**: 13+ (Metadata & Users)
-- **Elasticsearch**: 8+ (Log search & analytics)
-- **Redis**: 6+ (Sessions & cache)
-
-### External Dependencies
-- **TSA Service**: Time Stamp Authority for compliance
-- **LDAP/AD**: Optional enterprise authentication
-- **SMTP Server**: Email notifications
-
-## 🚀 Quick Start
-
-### 1. Clone Repository
+### **1. Requirements**
 ```bash
+# Minimum requirements
+CPU: 16 cores
+RAM: 64GB
+Storage: 2TB SSD
+Network: 1Gbps
+
+# Recommended
+CPU: 32 cores  
+RAM: 128GB
+Storage: 4TB NVMe SSD
+Network: 10Gbps
+```
+
+### **2. Installation**
+```bash
+# Clone repository
 git clone https://github.com/ozkanguner/5651-logging-v2.git
 cd 5651-logging-v2
-```
 
-### 2. Environment Setup
-```bash
-cp deployment/config/.env.example .env
-# Edit .env with your settings
-```
+# Setup environment
+cp .env.example .env
+nano .env  # Configure your settings
 
-### 3. Docker Deployment
-```bash
+# Start services
 docker-compose up -d
+
+# Check status
+docker-compose ps
 ```
 
-### 4. Initialize Database
-```bash
-./scripts/init-database.sh
-./scripts/create-admin-user.sh
+### **3. Access**
+- **Web Dashboard**: http://localhost
+- **API Documentation**: http://localhost/api/docs
+- **Grafana Monitoring**: http://localhost:3001
+
+### **4. Default Users**
+```yaml
+Chain Admin:
+  Username: chain_admin
+  Password: admin123
+  Access: All hotels
+
+Hotel Manager (Istanbul):
+  Username: istanbul_manager  
+  Password: hotel123
+  Access: Istanbul hotel only
 ```
 
-### 5. Access Web Interface
-- **Web UI**: http://your-server:80
-- **API Docs**: http://your-server/api/docs
-- **Grafana**: http://your-server:3000
+## 🏨 **Hotel Management Guide**
 
-## 🔧 Configuration
-
-### Device Registration
+### **Chain Admin (Zincir Yöneticisi)**
 ```python
-# Register new device
-POST /api/v1/devices/register
+# Yeni otel ekleme
+POST /api/hotels
 {
-    "mac_address": "AA:BB:CC:DD:EE:01",
-    "device_name": "Aksaray-Hotspot-01",
-    "location": "Aksaray Meydanı",
-    "device_type": "firewall"
+    "name": "Bursa Grand Hotel",
+    "code": "BUR-001", 
+    "subnet_range": "192.168.4.0/24"
+}
+
+# Otel yöneticisi oluşturma
+POST /api/users
+{
+    "hotel_id": "hotel-bursa-uuid",
+    "username": "bursa_manager",
+    "email": "mgr@bursa.com",
+    "role": "hotel_manager"
 }
 ```
 
-### User Permissions
+### **Hotel Manager (Otel Yöneticisi)**
 ```python
-# Grant device permission to user
-POST /api/v1/admin/device-permissions
+# Mikrotik cihaz ekleme
+POST /api/devices
 {
-    "user_id": "user-uuid",
-    "device_id": "device-uuid",
-    "permissions": {
-        "can_view_logs": true,
-        "can_export_logs": true,
-        "access_start_time": "08:00",
-        "access_end_time": "18:00"
-    }
+    "name": "Bursa Router",
+    "ip_address": "192.168.4.1",
+    "mac_address": "DD:EE:FF:AA:BB:01",
+    "device_type": "router"
 }
+
+# Kendi otelinin loglarını görme
+GET /api/logs?hotel_id=current_user_hotel
 ```
 
-## 📊 Monitoring & Analytics
+## 📊 **Performance Metrics**
 
-### Grafana Dashboards
-- System Health Overview
-- Log Volume Metrics
-- Device Status Dashboard
-- User Activity Analytics
-- 5651 Compliance Reports
+### **Capacity Planning**
+| Hotel Count | Devices | Events/Sec | Storage/Month | Users |
+|-------------|---------|------------|---------------|-------|
+| **1-5** | 25 | 500 | 50GB | 10 |
+| **5-10** | 50 | 1000 | 100GB | 20 |
+| **10-20** | 100 | 2000 | 200GB | 40 |
+| **20+** | 200+ | 5000+ | 500GB+ | 100+ |
 
-### Prometheus Metrics
-- Log ingestion rate
-- Storage usage
-- API response times
-- Authentication failures
-- Compliance violations
+### **Real Performance Example**
+```yaml
+Istanbul Hotel:
+  Devices: 15 (Router, Switch, APs)
+  Events/Second: 350
+  Storage/Month: 35GB
+  Users: 8
 
-## ⚖️ Legal Compliance (5651)
+Ankara Hotel:  
+  Devices: 12
+  Events/Second: 280
+  Storage/Month: 28GB
+  Users: 6
 
-### Automatic Features
-- ✅ 2-year log retention
-- ✅ Digital signature verification
-- ✅ User activity audit logs
-- ✅ Court-ready export formats
-- ✅ Monthly compliance reports
-- ✅ Data integrity verification
+Total Chain:
+  Hotels: 3
+  Devices: 35
+  Events/Second: 750
+  Storage/Month: 85GB
+  Users: 18
+```
 
-### Manual Processes
-- Device registration approval
-- User permission management
-- Compliance report review
-- Legal export generation
+## ⚖️ **5651 Compliance Features**
 
-## 🐳 Docker Deployment
+### **Daily Compliance Process**
+```python
+# Her gün otomatik çalışır
+def daily_compliance():
+    for hotel in get_all_hotels():
+        # 1. Günlük log dosyası oluştur
+        daily_file = f"/logs/{hotel.id}/{today}.log"
+        
+        # 2. SHA-256 hash hesapla
+        file_hash = calculate_sha256(daily_file)
+        
+        # 3. RSA-256 ile imzala
+        signature = rsa_sign(file_hash, private_key)
+        
+        # 4. TSA'dan zaman damgası al
+        timestamp = get_tsa_timestamp(file_hash)
+        
+        # 5. Compliance kaydı oluştur
+        save_compliance_record(hotel, file_hash, signature, timestamp)
+```
 
-### Services
-- **logmaster-backend**: FastAPI application
-- **logmaster-frontend**: React web interface
-- **postgresql**: User & metadata database
-- **elasticsearch**: Log search engine
-- **redis**: Session & cache store
-- **grafana**: Monitoring dashboard
-- **prometheus**: Metrics collection
-
-### Volumes
-- `logs-data`: Raw log files
-- `postgres-data`: Database files
-- `elastic-data`: Elasticsearch data
-- `grafana-data`: Dashboard configs
-
-## 🧪 Testing
-
-### Backend Tests
+### **Legal Export**
 ```bash
-cd backend
-pytest tests/ -v --cov=app
+# Hotel bazlı yasal export
+curl -X POST http://localhost/api/compliance/export \
+  -H "Content-Type: application/json" \
+  -d '{
+    "hotel_id": "hotel-istanbul-uuid",
+    "start_date": "2024-01-01", 
+    "end_date": "2024-01-31",
+    "format": "legal_5651"
+  }'
 ```
 
-### Frontend Tests
+## 🔐 **Security Features**
+
+### **Multi-Tenant Security**
+- **Complete Data Isolation** - Oteller birbirini göremez
+- **IP-based Hotel Detection** - Subnet bazlı otomatik routing
+- **Role-based Access Control** - Kullanıcı yetkilerine göre erişim
+- **Encrypted Storage** - Sensitive veriler şifreli
+- **Audit Logging** - Tüm aktiviteler loglanır
+
+### **Device Security**
+- **MAC Address Validation** - Cihaz kimlik doğrulama
+- **IP Range Verification** - Subnet kontrolü
+- **Auto Device Registration** - Güvenli cihaz ekleme
+- **SNMP Community Security** - Güvenli SNMP erişimi
+
+## 📈 **Monitoring & Alerts**
+
+### **Real-time Dashboard**
+- **Live Log Stream** - Gerçek zamanlı log akışı
+- **Hotel Performance** - Otel bazlı metrikler
+- **Device Status** - Cihaz durumu izleme
+- **Error Tracking** - Hata takibi ve alertler
+
+### **Performance Alerts**
+```yaml
+Critical Alerts:
+  - Events/second < 100 for 5 minutes
+  - Storage usage > 90%
+  - Device offline > 10 minutes
+  - Compliance signature failure
+
+Warning Alerts:
+  - Events/second < 500 for 10 minutes
+  - Queue depth > 1000
+  - High error rate > 1%
+```
+
+## 🛠️ **Configuration**
+
+### **Environment Variables**
 ```bash
-cd frontend
-npm test
+# Database
+DATABASE_URL=postgresql://user:pass@localhost:5432/logmaster
+REDIS_URL=redis://localhost:6379
+ELASTICSEARCH_URL=http://localhost:9200
+
+# Security
+JWT_SECRET_KEY=your-secret-key
+RSA_PRIVATE_KEY_PATH=/keys/private.pem
+TSA_URL=http://tsa.example.com
+
+# Performance
+MAX_EVENTS_PER_SECOND=1000
+BATCH_SIZE=100
+WORKER_COUNT=4
+
+# Compliance
+RETENTION_YEARS=2
+DAILY_SIGNING_TIME=02:00
+COMPLIANCE_EMAIL=compliance@company.com
 ```
 
-### Integration Tests
-```bash
-./scripts/run-integration-tests.sh
+### **Docker Compose Configuration**
+```yaml
+version: '3.8'
+services:
+  logmaster-api:
+    image: logmaster/api:latest
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./logs:/logs
+      - ./keys:/keys
+
+  logmaster-syslog:
+    image: logmaster/syslog:latest
+    ports:
+      - "514:514/udp"
+    environment:
+      - REDIS_URL=${REDIS_URL}
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
 ```
 
-## 📚 API Documentation
+## 📚 **Documentation**
 
-### Authentication Endpoints
-- `POST /api/v1/auth/login` - User login
-- `POST /api/v1/auth/refresh` - Token refresh
-- `POST /api/v1/auth/logout` - User logout
+### **API Documentation**
+- **Interactive API Docs**: `/api/docs` (Swagger)
+- **API Schema**: `/api/openapi.json`
+- **Postman Collection**: `docs/postman/`
 
-### Device Management
-- `GET /api/v1/devices` - List devices
-- `POST /api/v1/devices/register` - Register device
-- `PUT /api/v1/devices/{id}` - Update device
-- `DELETE /api/v1/devices/{id}` - Remove device
+### **Architecture Documentation**
+- **System Overview**: `docs/architecture/system-overview.md`
+- **Data Flow**: `docs/architecture/data-flow.md`
+- **Database Schema**: `docs/architecture/database-schema.md`
 
-### Log Management
-- `GET /api/v1/logs/search` - Search logs
-- `GET /api/v1/logs/export` - Export logs
-- `GET /api/v1/devices/{mac}/logs` - Device logs
+### **Deployment Guides**
+- **Single Server Setup**: `docs/deployment/single-server.md`
+- **High Performance Setup**: `docs/deployment/high-performance.md`
+- **Production Deployment**: `docs/deployment/production.md`
 
-### User Management
-- `GET /api/v1/users` - List users
-- `POST /api/v1/users` - Create user
-- `PUT /api/v1/users/{id}` - Update user
-- `POST /api/v1/admin/device-permissions` - Grant permissions
+## 🤝 **Support & Contributing**
 
-### Compliance
-- `GET /api/v1/compliance/report` - Generate report
-- `GET /api/v1/compliance/violations` - List violations
-- `POST /api/v1/compliance/verify` - Verify signatures
-
-## 🔒 Security Considerations
-
-### Network Security
-- TLS 1.3 encryption
-- VPN access recommended
-- Firewall rules included
-- Intrusion detection ready
-
-### Data Security
-- AES-256 encryption at rest
-- RSA-256 digital signatures
-- Key rotation policies
-- Secure key management
-
-### Application Security
-- SQL injection protection
-- XSS prevention
-- CSRF protection
-- Rate limiting
-- Input validation
-
-## 🆘 Support & Maintenance
-
-### Log Rotation
-- Daily log rotation
-- Compression after 7 days
-- Archive after 30 days
-
-## 📖 Comprehensive Documentation
-
-### 🏗️ System Architecture
-- **[System Overview](docs/architecture/system-overview.md)** - Complete system architecture with 4 deployment options
-- **[Data Flow](docs/architecture/data-flow.md)** - High-performance data processing pipeline  
-- **[Database Schema](docs/architecture/database-schema.md)** - PostgreSQL and Elasticsearch schemas
-- **[Security & Permissions](docs/architecture/security-permissions.md)** - RBAC and device-level security
-- **[Production Deployment](docs/architecture/deployment-production.md)** - Enterprise deployment guide
-
-### 🚀 Quick Start Options
-
-#### Option 1: Single Server High-Performance (RECOMMENDED) 💰
-```bash
-# Ubuntu 22.04 LTS with 64 cores, 256GB RAM
-git clone https://github.com/ozkanguner/5651-logging-v2.git /opt/logmaster
-cd /opt/logmaster
-sudo ./deploy/ubuntu-single-server-hp.sh
-```
-**Result:** 10,000+ events/second, $3.5K-4.5K/month
-
-#### Option 2: MVP Development
-```bash
-git clone https://github.com/ozkanguner/5651-logging-v2.git
-cd 5651-logging-v2
-docker-compose up -d
-```
-**Result:** 1,000-2,000 events/second, $500-1K/month
-
-#### Option 3: Multi-Server Enterprise
-See [Production Deployment Guide](docs/architecture/deployment-production.md)
-**Result:** 10,000+ events/second with HA, $8K-12K/month
-
-## 🎯 Architecture Decision Matrix
-
-| Requirement | MVP | Single Server HP ⭐ | Multi-Server HP | Enterprise |
-|-------------|-----|-------------------|----------------|------------|
-| **Budget < $5K/month** | ✅ | ✅ | ❌ | ❌ |
-| **10K+ events/sec** | ❌ | ✅ | ✅ | ✅ |
-| **99.9%+ uptime** | ❌ | ❌ | ✅ | ✅ |
-| **Simple management** | ✅ | ✅ | ❌ | ❌ |
-| **Quick deployment** | ✅ | ✅ | ❌ | ❌ |
-| **High availability** | ❌ | ❌ | ✅ | ✅ |
-
-## 📞 Contact & Support
-
-- **Documentation**: [GitHub Wiki](https://github.com/ozkanguner/5651-logging-v2/wiki)
+### **Community**
 - **Issues**: [GitHub Issues](https://github.com/ozkanguner/5651-logging-v2/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/ozkanguner/5651-logging-v2/discussions)
+- **Wiki**: [Project Wiki](https://github.com/ozkanguner/5651-logging-v2/wiki)
 
-## 📜 License
+### **Commercial Support**
+- **Professional Services**: setup@logmaster.com
+- **Enterprise Support**: enterprise@logmaster.com
+- **Training**: training@logmaster.com
 
-This project is licensed under the Enterprise License - see the [LICENSE](LICENSE) file for details.
+## 📄 **License**
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-**🚀 Ready to process 10,000+ events per second with enterprise-grade log management?**
+## 🎯 **Perfect For:**
 
-**Start with Single Server High-Performance:** `docker-compose up -d` 
+✅ **Hotel Chains** - Multi-location management  
+✅ **Network Operators** - High-volume log processing  
+✅ **Compliance Teams** - 5651 Turkish Law requirements  
+✅ **Mikrotik Users** - RouterOS integration  
+✅ **MSPs** - Managed service providers  
+
+**LogMaster v2 - Sade, güçlü ve uyumlu!** 🚀 

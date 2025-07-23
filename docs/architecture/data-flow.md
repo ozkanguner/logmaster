@@ -1,396 +1,436 @@
-# LogMaster v2 - Multi-Tenant Hotel Chain Data Flow Architecture
+# LogMaster v2 - Clean Multi-Tenant Data Flow
 
-## 🏨 Hotel Chain Log Management & Mikrotik Integration
+## 🔄 **Temiz ve Basit Veri Akışı**
 
-LogMaster v2 implements a comprehensive **multi-tenant data flow architecture** optimized for **hotel chains** with **Mikrotik device integration** and **10,000+ events/second processing**.
+**LogMaster v2** - Otel zincirleri için **1000+ EPS** performansı ile **5651 uyumlu** temiz mimari.
 
-## 🔄 **Hotel Chain Data Flow Diagram**
+## 📊 **Multi-Tenant Data Flow Architecture**
 
-### 🏢 Multi-Tenant Hotel Chain Architecture
+### **🏨 Hotel Chain Log Processing Flow**
 
-```mermaid
-graph TB
-    subgraph "HOTEL CHAIN MANAGEMENT"
-        CHAIN_ADMIN["🏢 Chain Admin<br/>Tüm otellere erişim"]
-        
-        subgraph "HOTEL A - İstanbul Oteli"
-            HOTEL_A_MGR["👨‍💼 Hotel A Manager<br/>Sadece A otelini yönetir"]
-            
-            subgraph "Mikrotik Devices A"
-                MIKROTIK_A1["📡 Mikrotik CCR1009<br/>Main Router<br/>192.168.1.1"]
-                MIKROTIK_A2["📡 Mikrotik CRS328<br/>Core Switch<br/>192.168.1.2"]
-                MIKROTIK_A3["📡 Mikrotik cAP ac<br/>WiFi AP<br/>192.168.1.3"]
-                MIKROTIK_A4["📡 Mikrotik RB4011<br/>Firewall<br/>192.168.1.4"]
-            end
-        end
-        
-        subgraph "HOTEL B - Ankara Oteli"
-            HOTEL_B_MGR["👨‍💼 Hotel B Manager<br/>Sadece B otelini yönetir"]
-            
-            subgraph "Mikrotik Devices B"
-                MIKROTIK_B1["📡 Mikrotik CCR2004<br/>Main Router<br/>192.168.2.1"]
-                MIKROTIK_B2["📡 Mikrotik CRS354<br/>Core Switch<br/>192.168.2.2"]
-                MIKROTIK_B3["📡 Mikrotik cAP ax<br/>WiFi 6 AP<br/>192.168.2.3"]
-            end
-        end
-        
-        subgraph "HOTEL C - İzmir Oteli"
-            HOTEL_C_MGR["👨‍💼 Hotel C Manager<br/>Sadece C otelini yönetir"]
-            
-            subgraph "Mikrotik Devices C"
-                MIKROTIK_C1["📡 Mikrotik RB5009<br/>Router<br/>192.168.3.1"]
-                MIKROTIK_C2["📡 Mikrotik CRS326<br/>Switch<br/>192.168.3.2"]
-            end
-        end
-        
-        subgraph "CENTRAL LOGMASTER SYSTEM"
-            HOTEL_ISOLATION["🏨 Hotel Data Isolation<br/>Tenant Separation"]
-            DEVICE_REGISTRY["📱 Mikrotik Device Registry<br/>Auto-discovery & Management"]
-            PERMISSION_ENGINE["🔐 Multi-Tenant Permissions<br/>Hotel-based RBAC"]
-            
-            subgraph "Log Collection Layer"
-                UDP_LB["⚖️ UDP Load Balancer<br/>Multi-hotel log routing"]
-                SYSLOG_1["📡 Syslog Receiver 1<br/>Port 514"]
-                SYSLOG_2["📡 Syslog Receiver 2<br/>Port 515"] 
-                SYSLOG_3["📡 Syslog Receiver 3<br/>Port 516"]
-            end
-            
-            subgraph "Processing Layer"
-                HOTEL_QUEUE["🔄 Hotel-Aware Queue<br/>Tenant-tagged messages"]
-                MT_PARSER_1["⚡ Mikrotik Parser 1<br/>RouterOS log format"]
-                MT_PARSER_2["⚡ Mikrotik Parser 2<br/>Firewall & DHCP logs"]
-                MT_PARSER_3["⚡ Mikrotik Parser 3<br/>Wireless & Interface logs"]
-                MT_PARSER_4["⚡ Mikrotik Parser 4<br/>System & Error logs"]
-            end
-            
-            subgraph "Storage Layer"
-                HOTEL_PARTITIONS["📊 Hotel Partitioned Storage<br/>Isolated data per hotel"]
-                ES_CLUSTER["🔍 Elasticsearch Cluster<br/>Hotel-indexed search"]
-                PG_CLUSTER["🐘 PostgreSQL Cluster<br/>Tenant-aware metadata"]
-                REDIS_CACHE["⚡ Redis Cluster<br/>Hotel session cache"]
-            end
-            
-            subgraph "API & Access Layer"
-                TENANT_API["🚀 Multi-Tenant API<br/>Hotel-filtered responses"]
-                HOTEL_DASHBOARDS["📊 Hotel Dashboards<br/>Tenant-specific views"]
-                DEVICE_MGMT["📱 Device Management<br/>Per-hotel Mikrotik config"]
-            end
-        end
-    end
-    
-    %% Hotel Admin Access
-    CHAIN_ADMIN --> HOTEL_ISOLATION
-    CHAIN_ADMIN --> DEVICE_REGISTRY
-    
-    %% Hotel Manager Access (Isolated)
-    HOTEL_A_MGR --> DEVICE_MGMT
-    HOTEL_B_MGR --> DEVICE_MGMT
-    HOTEL_C_MGR --> DEVICE_MGMT
-    
-    %% Device Management Connections
-    HOTEL_A_MGR -.->|"Manage Only A"| MIKROTIK_A1
-    HOTEL_A_MGR -.->|"Manage Only A"| MIKROTIK_A2
-    HOTEL_A_MGR -.->|"Manage Only A"| MIKROTIK_A3
-    HOTEL_A_MGR -.->|"Manage Only A"| MIKROTIK_A4
-    
-    HOTEL_B_MGR -.->|"Manage Only B"| MIKROTIK_B1
-    HOTEL_B_MGR -.->|"Manage Only B"| MIKROTIK_B2
-    HOTEL_B_MGR -.->|"Manage Only B"| MIKROTIK_B3
-    
-    HOTEL_C_MGR -.->|"Manage Only C"| MIKROTIK_C1
-    HOTEL_C_MGR -.->|"Manage Only C"| MIKROTIK_C2
-    
-    %% Log Flow from Devices
-    MIKROTIK_A1 --> UDP_LB
-    MIKROTIK_A2 --> UDP_LB
-    MIKROTIK_A3 --> UDP_LB
-    MIKROTIK_A4 --> UDP_LB
-    MIKROTIK_B1 --> UDP_LB
-    MIKROTIK_B2 --> UDP_LB
-    MIKROTIK_B3 --> UDP_LB
-    MIKROTIK_C1 --> UDP_LB
-    MIKROTIK_C2 --> UDP_LB
-    
-    %% Load Balancer Distribution
-    UDP_LB --> SYSLOG_1
-    UDP_LB --> SYSLOG_2
-    UDP_LB --> SYSLOG_3
-    
-    %% Collection to Queue
-    SYSLOG_1 --> HOTEL_QUEUE
-    SYSLOG_2 --> HOTEL_QUEUE
-    SYSLOG_3 --> HOTEL_QUEUE
-    
-    %% Queue to Processing
-    HOTEL_QUEUE --> MT_PARSER_1
-    HOTEL_QUEUE --> MT_PARSER_2
-    HOTEL_QUEUE --> MT_PARSER_3
-    HOTEL_QUEUE --> MT_PARSER_4
-    
-    %% Processing to Storage
-    MT_PARSER_1 --> HOTEL_PARTITIONS
-    MT_PARSER_2 --> HOTEL_PARTITIONS
-    MT_PARSER_3 --> HOTEL_PARTITIONS
-    MT_PARSER_4 --> HOTEL_PARTITIONS
-    
-    HOTEL_PARTITIONS --> ES_CLUSTER
-    HOTEL_PARTITIONS --> PG_CLUSTER
-    HOTEL_PARTITIONS --> REDIS_CACHE
-    
-    %% API Access
-    TENANT_API --> ES_CLUSTER
-    TENANT_API --> PG_CLUSTER
-    TENANT_API --> REDIS_CACHE
-    
-    HOTEL_DASHBOARDS --> TENANT_API
-    DEVICE_MGMT --> DEVICE_REGISTRY
-    
-    classDef chainAdmin fill:#ff9999,stroke:#ff0000,stroke-width:3px
-    classDef hotelManager fill:#99ccff,stroke:#0066cc,stroke-width:2px
-    classDef mikrotikDevice fill:#99ff99,stroke:#00cc00,stroke-width:2px
-    classDef systemCore fill:#ffcc99,stroke:#ff6600,stroke-width:2px
-    classDef storage fill:#f0b7ff,stroke:#9c27b0,stroke-width:2px
-    
-    class CHAIN_ADMIN chainAdmin
-    class HOTEL_A_MGR,HOTEL_B_MGR,HOTEL_C_MGR hotelManager
-    class MIKROTIK_A1,MIKROTIK_A2,MIKROTIK_A3,MIKROTIK_A4,MIKROTIK_B1,MIKROTIK_B2,MIKROTIK_B3,MIKROTIK_C1,MIKROTIK_C2 mikrotikDevice
-    class HOTEL_ISOLATION,DEVICE_REGISTRY,PERMISSION_ENGINE,UDP_LB,HOTEL_QUEUE,TENANT_API systemCore
-    class HOTEL_PARTITIONS,ES_CLUSTER,PG_CLUSTER,REDIS_CACHE storage
-```
-
-## 📡 **Mikrotik-Specific Log Processing Pipeline**
-
-### 1. **RouterOS Log Collection**
 ```mermaid
 graph LR
-    subgraph "MIKROTIK DEVICE"
-        MT_DEVICE["📡 Mikrotik Router<br/>RouterOS v7.x"]
-        
-        subgraph "Log Sources"
-            FW_LOGS["🔥 Firewall Logs<br/>firewall,info"]
-            DHCP_LOGS["🌐 DHCP Logs<br/>dhcp,info"]
-            WIFI_LOGS["📡 Wireless Logs<br/>wireless,info"]
-            SYS_LOGS["⚙️ System Logs<br/>system,error"]
-            INT_LOGS["🔌 Interface Logs<br/>interface,info"]
+    subgraph "HOTELS"
+        subgraph "Hotel A - İstanbul"
+            A_ROUTER["📡 Mikrotik Router<br/>192.168.1.1"]
+            A_SWITCH["📡 Mikrotik Switch<br/>192.168.1.2"]
+            A_AP["📡 Mikrotik AP<br/>192.168.1.3"]
         end
-    end
-    
-    subgraph "COLLECTION METHODS"
-        SYSLOG_OUT["📤 Syslog Forward<br/>UDP 514"]
-        SNMP_POLL["📊 SNMP Polling<br/>v2c/v3"]
-        SSH_FETCH["🔐 SSH Log Fetch<br/>/log print"]
-        API_QUERY["🔌 API Query<br/>REST API"]
+        
+        subgraph "Hotel B - Ankara"
+            B_ROUTER["📡 Mikrotik Router<br/>192.168.2.1"]
+            B_SWITCH["📡 Mikrotik Switch<br/>192.168.2.2"]
+        end
+        
+        subgraph "Hotel C - İzmir"
+            C_ROUTER["📡 Mikrotik Router<br/>192.168.3.1"]
+        end
     end
     
     subgraph "LOGMASTER PROCESSING"
-        MT_IDENTIFIER["🏷️ Hotel/Device Identification<br/>MAC + IP mapping"]
-        MT_PARSER["🔄 RouterOS Log Parser<br/>Topic-based parsing"]
-        MT_ENRICHER["🎯 Mikrotik Enricher<br/>Device info + metrics"]
-        MT_VALIDATOR["✅ RouterOS Validator<br/>Format verification"]
+        COLLECTOR["📡 Syslog Collector<br/>UDP 514<br/>1000+ EPS"]
+        
+        subgraph "Multi-Tenant Pipeline"
+            HOTEL_ID["🏨 Hotel Identification<br/>IP → Hotel mapping"]
+            PARSER["🔄 Log Parser<br/>Mikrotik + Generic formats"]
+            ENRICHER["🎯 Enricher<br/>Add hotel + device info"]
+        end
+        
+        subgraph "Storage"
+            PG["🐘 PostgreSQL<br/>Metadata + Users"]
+            ES["🔍 Elasticsearch<br/>Search + Analytics"]
+            FILES["📁 File Storage<br/>Daily logs per hotel"]
+        end
+        
+        subgraph "5651 Compliance"
+            SIGNER["✍️ Daily Signer<br/>RSA-256 signature"]
+            TSA["🕐 TSA Timestamp<br/>Legal timestamp"]
+            ARCHIVE["📦 Archive<br/>2+ years retention"]
+        end
     end
     
-    %% Device to Collection
-    FW_LOGS --> SYSLOG_OUT
-    DHCP_LOGS --> SYSLOG_OUT
-    WIFI_LOGS --> SYSLOG_OUT
-    SYS_LOGS --> SYSLOG_OUT
-    INT_LOGS --> SYSLOG_OUT
+    subgraph "USER ACCESS"
+        CHAIN_ADMIN["🏢 Chain Admin<br/>View all hotels"]
+        HOTEL_MGR_A["👨‍💼 Hotel A Manager<br/>View only Hotel A"]
+        HOTEL_MGR_B["👨‍💼 Hotel B Manager<br/>View only Hotel B"]
+        HOTEL_MGR_C["👨‍💼 Hotel C Manager<br/>View only Hotel C"]
+    end
     
-    MT_DEVICE --> SNMP_POLL
-    MT_DEVICE --> SSH_FETCH
-    MT_DEVICE --> API_QUERY
+    %% Device to Collector
+    A_ROUTER --> COLLECTOR
+    A_SWITCH --> COLLECTOR
+    A_AP --> COLLECTOR
+    B_ROUTER --> COLLECTOR
+    B_SWITCH --> COLLECTOR
+    C_ROUTER --> COLLECTOR
     
-    %% Collection to Processing
-    SYSLOG_OUT --> MT_IDENTIFIER
-    SNMP_POLL --> MT_IDENTIFIER
-    SSH_FETCH --> MT_IDENTIFIER
-    API_QUERY --> MT_IDENTIFIER
+    %% Processing Pipeline
+    COLLECTOR --> HOTEL_ID
+    HOTEL_ID --> PARSER
+    PARSER --> ENRICHER
     
-    MT_IDENTIFIER --> MT_PARSER
-    MT_PARSER --> MT_ENRICHER
-    MT_ENRICHER --> MT_VALIDATOR
+    %% Storage Distribution
+    ENRICHER --> PG
+    ENRICHER --> ES
+    ENRICHER --> FILES
     
-    classDef mikrotik fill:#99ff99,stroke:#00cc00,stroke-width:2px
-    classDef collection fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
-    classDef processing fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    %% Compliance Process
+    FILES --> SIGNER
+    SIGNER --> TSA
+    TSA --> ARCHIVE
     
-    class MT_DEVICE,FW_LOGS,DHCP_LOGS,WIFI_LOGS,SYS_LOGS,INT_LOGS mikrotik
-    class SYSLOG_OUT,SNMP_POLL,SSH_FETCH,API_QUERY collection
-    class MT_IDENTIFIER,MT_PARSER,MT_ENRICHER,MT_VALIDATOR processing
+    %% User Access (Tenant Isolated)
+    CHAIN_ADMIN -.->|"All hotels"| PG
+    HOTEL_MGR_A -.->|"Hotel A only"| PG
+    HOTEL_MGR_B -.->|"Hotel B only"| PG
+    HOTEL_MGR_C -.->|"Hotel C only"| PG
+    
+    classDef device fill:#e8f5e8,stroke:#4caf50,stroke-width:2px
+    classDef processing fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
+    classDef storage fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef compliance fill:#ffebee,stroke:#f44336,stroke-width:2px
+    classDef user fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    
+    class A_ROUTER,A_SWITCH,A_AP,B_ROUTER,B_SWITCH,C_ROUTER device
+    class COLLECTOR,HOTEL_ID,PARSER,ENRICHER processing
+    class PG,ES,FILES storage
+    class SIGNER,TSA,ARCHIVE compliance
+    class CHAIN_ADMIN,HOTEL_MGR_A,HOTEL_MGR_B,HOTEL_MGR_C user
 ```
 
-### 2. **Hotel Data Isolation Flow**
+## ⚡ **1000+ EPS Performance Pipeline**
+
+### **Yüksek Performans Veri Akışı**
+
 ```mermaid
 graph TB
-    subgraph "INCOMING LOGS"
-        RAW_LOG["📝 Raw Mikrotik Log<br/>192.168.1.1: firewall,info..."]
+    subgraph "HIGH PERFORMANCE COLLECTION"
+        UDP_514["📡 UDP Port 514<br/>Non-blocking async"]
+        BUFFER["🔄 Circular Buffer<br/>10K message capacity"]
+        BATCH["📦 Batch Processor<br/>100 messages/batch"]
     end
     
-    subgraph "HOTEL IDENTIFICATION"
-        IP_LOOKUP["🔍 IP Address Lookup<br/>192.168.1.1 → Hotel A"]
-        MAC_LOOKUP["🔍 MAC Address Lookup<br/>AA:BB:CC:DD:EE:01 → Hotel A"]
-        DEVICE_LOOKUP["🔍 Device Registry<br/>Mikrotik CCR1009 → Hotel A"]
+    subgraph "PARALLEL PROCESSING"
+        WORKER_1["⚡ Worker 1<br/>Hotel A + B"]
+        WORKER_2["⚡ Worker 2<br/>Hotel C + others"]
+        PARSER_1["🔄 Parser 1<br/>Mikrotik logs"]
+        PARSER_2["🔄 Parser 2<br/>Generic logs"]
     end
     
-    subgraph "TENANT TAGGING"
-        HOTEL_TAG["🏷️ Hotel Tagging<br/>Add hotel_id: uuid-hotel-a"]
-        PERMISSION_CHECK["🔐 Permission Validation<br/>User can access Hotel A?"]
-        DATA_ISOLATION["🛡️ Data Isolation<br/>Separate storage namespace"]
+    subgraph "OPTIMIZED STORAGE"
+        PG_WRITE["🐘 Batch Write PostgreSQL<br/>1000 records/batch"]
+        ES_BULK["🔍 Elasticsearch Bulk<br/>Async indexing"]
+        FILE_WRITE["📁 Async File Write<br/>Daily rotation"]
     end
     
-    subgraph "HOTEL-SPECIFIC STORAGE"
-        HOTEL_A_PARTITION["📊 Hotel A Partition<br/>logs_hotel_a_2024_01"]
-        HOTEL_B_PARTITION["📊 Hotel B Partition<br/>logs_hotel_b_2024_01"]
-        HOTEL_C_PARTITION["📊 Hotel C Partition<br/>logs_hotel_c_2024_01"]
+    subgraph "REAL-TIME METRICS"
+        METRICS["📊 Performance Metrics<br/>EPS monitoring"]
+        ALERTS["🚨 Threshold Alerts<br/>Performance warnings"]
     end
     
-    %% Flow
-    RAW_LOG --> IP_LOOKUP
-    RAW_LOG --> MAC_LOOKUP
-    RAW_LOG --> DEVICE_LOOKUP
+    %% Performance Flow
+    UDP_514 --> BUFFER
+    BUFFER --> BATCH
     
-    IP_LOOKUP --> HOTEL_TAG
-    MAC_LOOKUP --> HOTEL_TAG
-    DEVICE_LOOKUP --> HOTEL_TAG
+    BATCH --> WORKER_1
+    BATCH --> WORKER_2
     
-    HOTEL_TAG --> PERMISSION_CHECK
-    PERMISSION_CHECK --> DATA_ISOLATION
+    WORKER_1 --> PARSER_1
+    WORKER_2 --> PARSER_2
     
-    DATA_ISOLATION -->|Hotel A| HOTEL_A_PARTITION
-    DATA_ISOLATION -->|Hotel B| HOTEL_B_PARTITION
-    DATA_ISOLATION -->|Hotel C| HOTEL_C_PARTITION
+    PARSER_1 --> PG_WRITE
+    PARSER_1 --> ES_BULK
+    PARSER_1 --> FILE_WRITE
     
-    classDef input fill:#e8f5e8,stroke:#4caf50,stroke-width:2px
-    classDef identification fill:#fff3e0,stroke:#ff9800,stroke-width:2px
-    classDef security fill:#ffebee,stroke:#f44336,stroke-width:2px
-    classDef storage fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    PARSER_2 --> PG_WRITE
+    PARSER_2 --> ES_BULK
+    PARSER_2 --> FILE_WRITE
     
-    class RAW_LOG input
-    class IP_LOOKUP,MAC_LOOKUP,DEVICE_LOOKUP identification
-    class HOTEL_TAG,PERMISSION_CHECK,DATA_ISOLATION security
-    class HOTEL_A_PARTITION,HOTEL_B_PARTITION,HOTEL_C_PARTITION storage
+    %% Monitoring
+    BUFFER --> METRICS
+    PARSER_1 --> METRICS
+    METRICS --> ALERTS
+    
+    classDef performance fill:#e8f5e8,stroke:#4caf50,stroke-width:3px
+    classDef worker fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef storage fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
+    classDef monitoring fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    
+    class UDP_514,BUFFER,BATCH performance
+    class WORKER_1,WORKER_2,PARSER_1,PARSER_2 worker
+    class PG_WRITE,ES_BULK,FILE_WRITE storage
+    class METRICS,ALERTS monitoring
 ```
 
-## 🔄 **Complete Hotel Chain Data Flow**
+## 🏨 **Multi-Tenant Data Isolation**
 
-### **End-to-End Multi-Tenant Process:**
+### **Hotel Bazlı Veri İzolasyonu**
 
 ```python
-# Example: Hotel A Mikrotik log processing
-incoming_log = {
-    "timestamp": "2024-01-15T10:30:45Z",
-    "source_ip": "192.168.1.1",
-    "mac_address": "AA:BB:CC:DD:EE:01",
-    "message": "firewall,info input:eth1-gateway, connection state:established",
-    "raw": "jan/15/2024 10:30:45 firewall,info input: eth1-gateway..."
-}
+# Basit ve etkili tenant routing
+class HotelRouter:
+    def __init__(self):
+        self.hotel_ip_map = {
+            "192.168.1.0/24": "hotel-a-uuid",  # İstanbul
+            "192.168.2.0/24": "hotel-b-uuid",  # Ankara  
+            "192.168.3.0/24": "hotel-c-uuid"   # İzmir
+        }
+    
+    def identify_hotel(self, source_ip):
+        for subnet, hotel_id in self.hotel_ip_map.items():
+            if ipaddress.ip_address(source_ip) in ipaddress.ip_network(subnet):
+                return hotel_id
+        return None
+    
+    def process_log(self, raw_log):
+        hotel_id = self.identify_hotel(raw_log['source_ip'])
+        if not hotel_id:
+            return None
+            
+        return {
+            **raw_log,
+            'hotel_id': hotel_id,
+            'tenant_namespace': f'hotel_{hotel_id}',
+            'partition_key': f'logs_{hotel_id}_{datetime.now().strftime("%Y_%m")}'
+        }
 
-# Step 1: Hotel identification
-hotel_context = identify_hotel(incoming_log)
-# Result: {"hotel_id": "uuid-hotel-a", "hotel_name": "İstanbul Oteli"}
-
-# Step 2: Device lookup
-device_info = lookup_mikrotik_device(incoming_log["mac_address"])
-# Result: {"device_name": "Mikrotik CCR1009", "type": "router", "hotel_id": "uuid-hotel-a"}
-
-# Step 3: Tenant isolation
-processed_log = {
-    **incoming_log,
-    "hotel_id": hotel_context["hotel_id"],
-    "device_id": device_info["device_id"],
-    "tenant_namespace": f"hotel_{hotel_context['hotel_id']}",
-    "parsed_data": {
-        "mikrotik_topic": "firewall,info",
-        "interface": "eth1-gateway",
-        "connection_state": "established",
-        "action": "accept"
-    }
-}
-
-# Step 4: Hotel-specific storage
-storage_partition = f"logs_hotel_a_{datetime.now().strftime('%Y_%m')}"
-store_log(processed_log, partition=storage_partition)
+# API seviyesinde tenant filtreleme
+@app.get("/api/logs")
+async def get_logs(user: User, filters: LogFilters):
+    if user.role == 'chain_admin':
+        # Chain admin tüm otelleri görebilir
+        query = build_query(filters)
+    else:
+        # Hotel manager sadece kendi otelini görebilir
+        query = build_query(filters, hotel_id=user.hotel_id)
+    
+    return await search_logs(query)
 ```
 
-## 📊 **Multi-Tenant Performance Metrics**
+## ⚖️ **5651 Compliance Data Flow**
 
-### **Hotel-Specific KPIs:**
+### **Günlük İmzalama ve Zaman Damgası**
+
+```mermaid
+graph LR
+    subgraph "DAILY COMPLIANCE PROCESS"
+        DAILY_LOGS["📋 Daily Logs<br/>Per hotel per day"]
+        HASH_CALC["🔒 SHA-256 Hash<br/>File integrity"]
+        RSA_SIGN["✍️ RSA-256 Signature<br/>Digital signing"]
+        TSA_REQUEST["🕐 TSA Request<br/>Timestamp authority"]
+        COMPLIANCE_RECORD["📝 Compliance Record<br/>Database storage"]
+    end
+    
+    subgraph "VERIFICATION PROCESS"
+        VERIFY_HASH["✅ Verify Hash<br/>File integrity check"]
+        VERIFY_SIGNATURE["✅ Verify Signature<br/>Digital signature check"]
+        VERIFY_TIMESTAMP["✅ Verify Timestamp<br/>TSA validation"]
+        COMPLIANCE_REPORT["📊 Compliance Report<br/>Audit ready"]
+    end
+    
+    %% Daily Process
+    DAILY_LOGS --> HASH_CALC
+    HASH_CALC --> RSA_SIGN
+    RSA_SIGN --> TSA_REQUEST
+    TSA_REQUEST --> COMPLIANCE_RECORD
+    
+    %% Verification Process
+    COMPLIANCE_RECORD --> VERIFY_HASH
+    VERIFY_HASH --> VERIFY_SIGNATURE
+    VERIFY_SIGNATURE --> VERIFY_TIMESTAMP
+    VERIFY_TIMESTAMP --> COMPLIANCE_REPORT
+    
+    classDef process fill:#e8f5e8,stroke:#4caf50,stroke-width:2px
+    classDef verify fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    
+    class DAILY_LOGS,HASH_CALC,RSA_SIGN,TSA_REQUEST,COMPLIANCE_RECORD process
+    class VERIFY_HASH,VERIFY_SIGNATURE,VERIFY_TIMESTAMP,COMPLIANCE_REPORT verify
+```
+
+### **5651 Compliance Implementation**
+
+```python
+class ComplianceEngine:
+    def daily_signing_process(self):
+        """Her gün otomatik çalışan imzalama süreci"""
+        for hotel in self.get_active_hotels():
+            # Hotel bazlı günlük dosya
+            log_file = f"/logs/{hotel.id}/{datetime.now().date()}.log"
+            
+            if not os.path.exists(log_file):
+                continue
+                
+            # 1. Dosya hash'i hesapla
+            file_hash = self.calculate_sha256(log_file)
+            
+            # 2. RSA-256 ile imzala
+            signature = self.rsa_sign(file_hash)
+            
+            # 3. TSA'dan zaman damgası al
+            timestamp = self.get_tsa_timestamp(file_hash)
+            
+            # 4. Compliance kaydı oluştur
+            record = {
+                'hotel_id': hotel.id,
+                'date': datetime.now().date(),
+                'file_path': log_file,
+                'file_hash': file_hash,
+                'signature': signature,
+                'tsa_timestamp': timestamp,
+                'status': 'signed'
+            }
+            
+            self.save_compliance_record(record)
+            
+    def monthly_compliance_report(self, hotel_id, year, month):
+        """Aylık compliance raporu"""
+        records = self.get_compliance_records(hotel_id, year, month)
+        
+        report = {
+            'hotel_id': hotel_id,
+            'period': f"{year}-{month:02d}",
+            'total_days': len(records),
+            'signed_days': len([r for r in records if r.status == 'signed']),
+            'missing_days': self.find_missing_days(records, year, month),
+            'verification_status': self.verify_all_signatures(records),
+            'generated_at': datetime.now(),
+            'legal_format': self.generate_legal_export(records)
+        }
+        
+        return report
+```
+
+## 📊 **Real-Time Dashboard Data Flow**
+
+### **Gerçek Zamanlı Veri Akışı**
+
+```mermaid
+graph LR
+    subgraph "LOG INGESTION"
+        LIVE_LOGS["📝 Live Logs<br/>Real-time stream"]
+    end
+    
+    subgraph "REAL-TIME PROCESSING"
+        WEBSOCKET["🔌 WebSocket<br/>Live connection"]
+        REDIS_STREAM["⚡ Redis Stream<br/>Real-time buffer"]
+        FILTER["🎯 Tenant Filter<br/>Hotel-specific data"]
+    end
+    
+    subgraph "DASHBOARD"
+        LIVE_VIEW["📺 Live Log View<br/>Hotel-filtered logs"]
+        METRICS["📊 Real-time Metrics<br/>EPS, errors, devices"]
+        ALERTS["🚨 Live Alerts<br/>Security events"]
+    end
+    
+    %% Real-time Flow
+    LIVE_LOGS --> WEBSOCKET
+    WEBSOCKET --> REDIS_STREAM
+    REDIS_STREAM --> FILTER
+    FILTER --> LIVE_VIEW
+    FILTER --> METRICS
+    FILTER --> ALERTS
+    
+    classDef realtime fill:#e8f5e8,stroke:#4caf50,stroke-width:2px
+    classDef processing fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
+    classDef dashboard fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    
+    class LIVE_LOGS realtime
+    class WEBSOCKET,REDIS_STREAM,FILTER processing
+    class LIVE_VIEW,METRICS,ALERTS dashboard
+```
+
+## ⚡ **Performance Optimizations**
+
+### **1000+ EPS Optimizasyon Teknikleri**
+
 ```yaml
-Per Hotel Metrics:
-  hotel_a_istanbul:
-    devices: 15
-    events_per_second: 3500
-    storage_usage: "250GB/month" 
-    active_users: 8
-    
-  hotel_b_ankara:
-    devices: 12
-    events_per_second: 2800
-    storage_usage: "200GB/month"
-    active_users: 6
-    
-  hotel_c_izmir:
-    devices: 8
-    events_per_second: 1200
-    storage_usage: "120GB/month"
-    active_users: 4
+Collection Optimizations:
+  - UDP socket tuning: SO_RCVBUF=16MB
+  - Non-blocking async I/O
+  - Circular buffer for burst handling
+  - Batch processing: 100 messages/batch
 
-Total Chain Performance:
-  total_hotels: 3
-  total_devices: 35
-  total_events_per_second: 7500
-  total_storage: "570GB/month"
-  total_users: 18
+Processing Optimizations:
+  - Parallel workers: 4 async workers
+  - Memory pooling for log objects
+  - Compiled regex patterns
+  - JSON parser optimization
+
+Storage Optimizations:
+  - PostgreSQL bulk inserts
+  - Elasticsearch bulk indexing
+  - Async file writes
+  - Connection pooling
+
+Caching Strategy:
+  - Redis for hot data
+  - Hotel-device mapping cache
+  - User session cache
+  - Query result cache (5 minutes)
 ```
 
-### **Tenant Isolation Verification:**
-```sql
--- Hotel A Manager sadece kendi otelini görebilir
-SELECT COUNT(*) FROM log_entries 
-WHERE hotel_id = 'uuid-hotel-a'
-AND timestamp >= NOW() - INTERVAL '24 hours';
+### **Resource Usage Monitoring**
 
--- Chain Admin tüm otelleri görebilir
-SELECT h.name, COUNT(l.id) as daily_logs
-FROM hotels h
-LEFT JOIN log_entries l ON h.id = l.hotel_id 
-    AND l.timestamp >= CURRENT_DATE
-GROUP BY h.id, h.name;
+```python
+class PerformanceMonitor:
+    def __init__(self):
+        self.metrics = {
+            'eps_current': 0,
+            'eps_1min': 0,
+            'eps_5min': 0,
+            'queue_depth': 0,
+            'processing_latency': 0,
+            'error_rate': 0
+        }
+    
+    def track_performance(self):
+        """Performans metriklerini izle"""
+        while True:
+            # EPS hesaplama
+            current_eps = self.calculate_current_eps()
+            
+            # Queue derinliği
+            queue_depth = self.get_queue_depth()
+            
+            # İşlem gecikmesi
+            latency = self.calculate_avg_latency()
+            
+            # Alarm kontrolü
+            if current_eps < 500:  # Minimum threshold
+                self.send_alert("Low EPS detected", current_eps)
+                
+            if queue_depth > 5000:  # Queue backup
+                self.send_alert("Queue backup detected", queue_depth)
+                
+            time.sleep(10)  # 10 saniyede bir kontrol
 ```
 
-## 🔐 **Security & Compliance**
+## 📈 **Scalability Path**
 
-### **Multi-Tenant Security Features:**
-- **🛡️ Data Isolation**: Her otel verisi ayrı namespace'de
-- **🔐 Permission Matrix**: Kullanıcı-otel-cihaz seviyesinde yetki
-- **🏷️ Tenant Tagging**: Tüm veriler hotel_id ile etiketlenir
-- **📊 Audit Trail**: Hotel bazlı erişim logları
-- **🔒 Encryption**: Otel bazlı şifreleme anahtarları
+### **Büyüme Planı**
 
-### **5651 Compliance Per Hotel:**
 ```yaml
-Compliance Features:
-  digital_signatures:
-    scope: "Per hotel per day"
-    format: "RSA-256 + TSA timestamp"
-    storage: "/signatures/hotel_{hotel_id}/{date}.sig"
-    
-  retention_policy:
-    duration: "2+ years per hotel"
-    archival: "Hotel-specific compressed archives"
-    access_control: "Hotel manager approval required"
-    
-  audit_trails:
-    user_access: "Per hotel per user tracking"
-    data_export: "Hotel-specific export logs"
-    compliance_reports: "Monthly per hotel reports"
+Phase 1: Single Server (1-10 hotels)
+  - 1 server
+  - 1000+ EPS
+  - Docker Compose deployment
+
+Phase 2: Horizontal Scale (10-50 hotels)
+  - 3 servers (API, DB, Search)
+  - 5000+ EPS
+  - Load balancer
+
+Phase 3: Microservices (50+ hotels)
+  - Kubernetes deployment
+  - 10,000+ EPS
+  - Auto-scaling
 ```
 
-Bu **multi-tenant hotel chain architecture** ile LogMaster v2:
-- ✅ **Unlimited hotels** - Sınırsız otel eklenebilir
-- ✅ **Complete isolation** - Oteller birbirini göremez  
-- ✅ **Mikrotik integration** - RouterOS tam desteği
-- ✅ **Scalable performance** - 10K+ events/second
-- ✅ **Compliance ready** - Hotel bazlı 5651 uyumluluk
+Bu **temiz ve basit veri akışı** ile LogMaster v2:
+- 🔄 **Efficient processing** - Minimal latency ile maksimum throughput
+- 🏨 **Perfect isolation** - Hotel verileri tamamen ayrı
+- ⚖️ **5651 ready** - Günlük imzalama ve TSA entegrasyonu
+- ⚡ **1000+ EPS** - Garantili performans
+- 📊 **Real-time** - Canlı dashboard ve alertler
 
-**Perfect for hotel chains requiring centralized log management with isolated tenant access!** 🏨 
+**Sade, hızlı ve güvenilir!** 🚀 
