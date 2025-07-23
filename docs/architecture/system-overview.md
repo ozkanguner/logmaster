@@ -386,24 +386,180 @@ graph TB
     class FW_CLUSTER1,FW_CLUSTER2,RTR_CORE1,RTR_CORE2,SW_FARM deviceTier
 ```
 
+### 💻 Single Server High-Performance (10,000+ Events/Second) 💰
+
+**TEK SUNUCU İLE 10K EVENTS/SECOND MÜMKÜNDÜ!**
+
+```mermaid
+graph TB
+    subgraph "SINGLE HIGH-PERFORMANCE SERVER"
+        subgraph "USERS"
+            U1["👤 Admin Users"]
+            U2["👨‍💻 Analysts"]
+        end
+        
+        subgraph "WEB LAYER - CONTAINERIZED"
+            NGINX["🌐 Nginx Reverse Proxy<br/>Load Balancer"]
+            REACT["⚛️ React Frontend<br/>Optimized Build"]
+        end
+        
+        subgraph "API LAYER - MULTI-PROCESS"
+            API1["🚀 FastAPI Process 1<br/>Port 8000"]
+            API2["🚀 FastAPI Process 2<br/>Port 8001"]
+            API3["🚀 FastAPI Process 3<br/>Port 8002"]
+            API4["🚀 FastAPI Process 4<br/>Port 8003"]
+        end
+        
+        subgraph "LOG COLLECTION - PARALLEL UDP"
+            UDP1["📡 UDP Receiver 1<br/>Port 514 - CPU Core 1-16"]
+            UDP2["📡 UDP Receiver 2<br/>Port 515 - CPU Core 17-32"]
+            UDP3["📡 UDP Receiver 3<br/>Port 516 - CPU Core 33-48"]
+            REDIS_Q["🔄 Redis Queue<br/>In-Memory Broker"]
+        end
+        
+        subgraph "PROCESSING - CPU OPTIMIZED"
+            WORKER1["⚡ Worker Process 1<br/>CPU Core 49-52"]
+            WORKER2["⚡ Worker Process 2<br/>CPU Core 53-56"]
+            WORKER3["⚡ Worker Process 3<br/>CPU Core 57-60"]
+            WORKER4["⚡ Worker Process 4<br/>CPU Core 61-64"]
+            BATCH["📦 Batch Writer<br/>Shared Memory"]
+        end
+        
+        subgraph "DATA STORAGE - SINGLE NODE"
+            ES_SINGLE["🔍 Elasticsearch<br/>Single Node - 32GB Heap"]
+            PG_SINGLE["🐘 PostgreSQL<br/>Optimized Config"]
+            REDIS_CACHE["⚡ Redis<br/>Cache + Sessions"]
+        end
+        
+        subgraph "STORAGE - NVMe OPTIMIZED"
+            NVME["💾 NVMe SSD Pool<br/>4x 2TB RAID 0"]
+            ARCHIVE["📦 Archive<br/>Background Compression"]
+        end
+        
+        subgraph "MONITORING - LIGHTWEIGHT"
+            METRICS["📊 Prometheus<br/>Efficient Scraping"]
+            GRAFANA["📈 Grafana<br/>Essential Dashboards"]
+        end
+    end
+    
+    subgraph "NETWORK DEVICES"
+        FW_DEV["🔥 Firewalls"]
+        RTR_DEV["🔀 Routers"] 
+        SW_DEV["🔌 Switches"]
+    end
+    
+    %% External to Server
+    FW_DEV --> UDP1
+    RTR_DEV --> UDP2
+    SW_DEV --> UDP3
+    
+    %% Users to Web
+    U1 --> NGINX
+    U2 --> NGINX
+    NGINX --> REACT
+    
+    %% Web to API
+    NGINX --> API1
+    NGINX --> API2
+    NGINX --> API3
+    NGINX --> API4
+    
+    %% UDP to Queue
+    UDP1 --> REDIS_Q
+    UDP2 --> REDIS_Q
+    UDP3 --> REDIS_Q
+    
+    %% Queue to Workers
+    REDIS_Q --> WORKER1
+    REDIS_Q --> WORKER2
+    REDIS_Q --> WORKER3
+    REDIS_Q --> WORKER4
+    
+    %% Workers to Batch
+    WORKER1 --> BATCH
+    WORKER2 --> BATCH
+    WORKER3 --> BATCH
+    WORKER4 --> BATCH
+    
+    %% Batch to Storage
+    BATCH --> ES_SINGLE
+    BATCH --> PG_SINGLE
+    BATCH --> REDIS_CACHE
+    BATCH --> NVME
+    
+    %% Storage Hierarchy
+    NVME --> ARCHIVE
+    
+    %% API to Data
+    API1 --> ES_SINGLE
+    API2 --> PG_SINGLE
+    API3 --> REDIS_CACHE
+    API4 --> ES_SINGLE
+    
+    %% Monitoring
+    WORKER1 --> METRICS
+    BATCH --> METRICS
+    ES_SINGLE --> METRICS
+    METRICS --> GRAFANA
+    
+    classDef singleServer fill:#e8f5e8,stroke:#4caf50,stroke-width:4px
+    classDef webLayer fill:#e3f2fd,stroke:#2196f3,stroke-width:3px
+    classDef apiLayer fill:#fff3e0,stroke:#ff9800,stroke-width:3px
+    classDef udpLayer fill:#f3e5f5,stroke:#9c27b0,stroke-width:3px
+    classDef processLayer fill:#ffebee,stroke:#f44336,stroke-width:3px
+    classDef dataLayer fill:#e0f2f1,stroke:#009688,stroke-width:3px
+    classDef storageLayer fill:#fce4ec,stroke:#e91e63,stroke-width:3px
+    
+    class NGINX,REACT webLayer
+    class API1,API2,API3,API4 apiLayer
+    class UDP1,UDP2,UDP3,REDIS_Q udpLayer
+    class WORKER1,WORKER2,WORKER3,WORKER4,BATCH processLayer
+    class ES_SINGLE,PG_SINGLE,REDIS_CACHE dataLayer
+    class NVME,ARCHIVE,METRICS,GRAFANA storageLayer
+```
+
 ### 📋 Architecture Comparison
 
-| Component | MVP Implementation | High-Performance Implementation | Enterprise Implementation |
-|-----------|-------------------|-------------------------------|---------------------------|
-| **Events/Second** | 1,000-2,000 | **10,000+** | 50,000+ |
-| **Web Layer** | Single Nginx + React | 3x Load Balanced Web Servers | Global CDN + Multi-region |
-| **API Layer** | Single FastAPI Instance | 4x Load Balanced FastAPI | Microservices + Service Mesh |
-| **Log Collection** | Single Syslog Server | 3x Load Balanced Syslog | Geographic Distribution |
-| **Processing** | Synchronous Parser | 4x Parallel Workers + Queue | ML Pipeline + Stream Processing |
-| **Data Storage** | PostgreSQL + Files | Clustered (ES + PG + Redis) | Multi-region + Hot/Cold Tiers |
-| **Monitoring** | Basic Health Checks | Real-time Metrics + Auto-scale | AI-based Predictive Analytics |
-| **Authentication** | Basic JWT | JWT + Session Management | LDAP + RBAC + 2FA + SSO |
-| **Compliance** | File Retention | Basic Digital Signatures | Full 5651 + International Standards |
-| **Availability** | 95% (Single Point) | 99.9% (HA Components) | 99.99% (Multi-region DR) |
-| **Deployment** | Single Server | Multi-server Cluster | Cloud-native + Kubernetes |
-| **Cost (Monthly)** | $500-1,000 | $8,000-12,000 | $25,000+ |
+| Component | MVP Implementation | Single Server High-Performance 💰 | Multi-Server High-Performance | Enterprise Implementation |
+|-----------|-------------------|----------------------------------|-------------------------------|---------------------------|
+| **Events/Second** | 1,000-2,000 | **10,000+** ⭐ | **10,000+** | 50,000+ |
+| **Server Count** | 1 | **1** (Güçlü) | 15+ | 50+ |
+| **Web Layer** | Single Nginx + React | Multi-Process Nginx + React | 3x Load Balanced Web Servers | Global CDN + Multi-region |
+| **API Layer** | Single FastAPI Instance | 4x FastAPI Processes | 4x Load Balanced FastAPI | Microservices + Service Mesh |
+| **Log Collection** | Single Syslog Server | 3x UDP Processes + CPU Pinning | 3x Load Balanced Syslog | Geographic Distribution |
+| **Processing** | Synchronous Parser | 4x Parallel Workers + CPU Cores | 4x Parallel Workers + Queue | ML Pipeline + Stream Processing |
+| **Data Storage** | PostgreSQL + Files | Single ES + PG + Redis (Optimized) | Clustered (ES + PG + Redis) | Multi-region + Hot/Cold Tiers |
+| **Monitoring** | Basic Health Checks | Lightweight Prometheus + Grafana | Real-time Metrics + Auto-scale | AI-based Predictive Analytics |
+| **Authentication** | Basic JWT | JWT + Session Management | JWT + Session Management | LDAP + RBAC + 2FA + SSO |
+| **Compliance** | File Retention | Basic Digital Signatures | Basic Digital Signatures | Full 5651 + International Standards |
+| **Availability** | 95% (Single Point) | 99% (Single Point Optimized) | 99.9% (HA Components) | 99.99% (Multi-region DR) |
+| **Deployment** | Single Server | **Single Powerful Server** | Multi-server Cluster | Cloud-native + Kubernetes |
+| **CPU Requirement** | 8 cores | **64 cores** | 450+ cores total | 1000+ cores total |
+| **RAM Requirement** | 32GB | **256GB** | 800GB+ total | 2TB+ total |
+| **Storage** | 1TB SSD | **8TB NVMe RAID** | 50TB+ distributed | 100TB+ distributed |
+| **Network** | 1Gbps | **25Gbps** | 10Gbps per server | 100Gbps+ |
+| **Cost (Monthly)** | $500-1,000 | **$3,500-4,500** 💰 | $8,000-12,000 | $25,000+ |
+| **Complexity** | Very Simple | **Simple** ⭐ | Complex | Very Complex |
+| **Management** | Easy | **Easy** | Moderate | Difficult |
 
-### 🎯 Performance Targets by Architecture Level
+### 💡 **TEK SUNUCU İLE 10K EVENTS/SECOND AVANTAJLARI:**
+
+#### ✅ **Avantajlar:**
+- **💰 65% Daha Ucuz** ($4K vs $11K/ay)
+- **🔧 Basit Yönetim** - Tek sunucu, tek sistem
+- **⚡ Düşük Network Latency** - İç haberleşme çok hızlı
+- **🚀 Hızlı Deployment** - Docker Compose ile 10 dakikada kurulum
+- **📊 Kolay Monitoring** - Tek yerden tüm metrikleri izleme
+- **🔄 Basit Backup** - Tek sunucu backup stratejisi
+- **⚙️ Kolay Troubleshooting** - Tüm loglar aynı yerde
+
+#### ⚠️ **Dezavantajlar:**
+- **☝️ Single Point of Failure** - Sunucu çökerse tüm sistem durur
+- **📈 Vertical Scaling Limit** - 64 core üzerinde pahalı hale gelir
+- **🔧 Hardware Dependency** - Donanım arızasında risk
+- **⚡ No Redundancy** - Load distribution yok
+
+### 🎯 **Performance Targets by Architecture Level**
 
 #### MVP Targets
 - **Events/Second**: 1,000-2,000
@@ -412,7 +568,18 @@ graph TB
 - **Storage**: 100GB/day
 - **Uptime**: 95%
 
-#### High-Performance Targets ⭐
+#### Single Server High-Performance Targets 💰⭐
+- **Events/Second**: **10,000+**
+- **Response Time**: < 100ms (P95)
+- **Concurrent Users**: 500+
+- **Storage**: 1TB/day
+- **Uptime**: 99% (Single server optimized)
+- **Processing Latency**: < 50ms
+- **CPU Usage**: < 80% (Optimal performance)
+- **Memory Usage**: < 90%
+- **Disk I/O**: 40K+ IOPS
+
+#### Multi-Server High-Performance Targets
 - **Events/Second**: **10,000+**
 - **Response Time**: < 100ms (P95)
 - **Concurrent Users**: 500+
@@ -710,7 +877,30 @@ Network: 1Gbps
 Cost: ~$800/month
 ```
 
-#### Phase 2 (High-Performance) - Multi-server Cluster ⭐
+#### Phase 2A (Single Server High-Performance) - Powerful Single Server 💰⭐
+```yaml
+Server Specifications:
+  CPU: 64 cores (AMD EPYC 7713 or Intel Xeon Gold 6348)
+  RAM: 256GB DDR4-3200 ECC
+  Storage: 
+    - Primary: 4x 2TB NVMe SSD RAID 0 (8TB total, 200K+ IOPS)
+    - Archive: 2x 8TB SATA SSD (compressed logs)
+  Network: 25Gbps Ethernet
+  Power: Redundant PSU + UPS backup
+
+Process/Core Allocation:
+  - UDP Receivers: 3 processes (48 cores total)
+  - Log Workers: 4 processes (16 cores total)
+  - Elasticsearch: Single node (32GB heap, dedicated cores)
+  - PostgreSQL: Optimized config (8 cores)
+  - Redis: In-memory cache (4 cores)
+  - API Processes: 4 FastAPI instances (8 cores)
+  - System: Reserved (4 cores)
+
+Monthly Cost: $3,500-4,500 💰
+```
+
+#### Phase 2B (Multi-Server High-Performance) - Multi-server Cluster
 ```yaml
 Primary Processing: 64 cores, 256GB RAM, 4x2TB NVMe
 Elasticsearch Cluster: 9 nodes (288 cores total)
@@ -727,4 +917,98 @@ Disaster Recovery: Hot standby sites
 Advanced Monitoring: Dedicated monitoring cluster
 Global CDN: Edge caching worldwide
 Cost: ~$25,000+/month
+```
+
+### 🔧 **Single Server Configuration Details**
+
+#### Operating System Optimizations
+```bash
+# Kernel parameters for high performance
+echo 'vm.max_map_count=262144' >> /etc/sysctl.conf
+echo 'net.core.rmem_max=134217728' >> /etc/sysctl.conf
+echo 'net.core.wmem_max=134217728' >> /etc/sysctl.conf
+echo 'net.core.netdev_max_backlog=30000' >> /etc/sysctl.conf
+echo 'net.ipv4.tcp_rmem=4096 65536 134217728' >> /etc/sysctl.conf
+echo 'net.ipv4.tcp_wmem=4096 65536 134217728' >> /etc/sysctl.conf
+
+# CPU governor for performance
+echo 'performance' > /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
+
+# Disable swap for Elasticsearch
+swapoff -a
+```
+
+#### Docker Compose Configuration
+```yaml
+version: '3.8'
+services:
+  # 3x UDP Receivers with CPU affinity
+  udp-receiver-1:
+    cpuset: "0-15"
+    mem_limit: 8g
+    
+  udp-receiver-2:
+    cpuset: "16-31"
+    mem_limit: 8g
+    
+  udp-receiver-3:
+    cpuset: "32-47"
+    mem_limit: 8g
+    
+  # 4x Log Processing Workers
+  log-worker-1:
+    cpuset: "48-51"
+    mem_limit: 16g
+    
+  log-worker-2:
+    cpuset: "52-55"
+    mem_limit: 16g
+    
+  log-worker-3:
+    cpuset: "56-59"
+    mem_limit: 16g
+    
+  log-worker-4:
+    cpuset: "60-63"
+    mem_limit: 16g
+    
+  # Single Elasticsearch node optimized
+  elasticsearch:
+    environment:
+      - "ES_JAVA_OPTS=-Xms32g -Xmx32g"
+      - "discovery.type=single-node"
+      - "indices.memory.index_buffer_size=40%"
+    mem_limit: 64g
+    
+  # PostgreSQL optimized config
+  postgresql:
+    environment:
+      - "max_connections=200"
+      - "shared_buffers=32GB"
+      - "effective_cache_size=64GB"
+      - "work_mem=256MB"
+    mem_limit: 48g
+    
+  # Redis optimized
+  redis:
+    environment:
+      - "maxmemory=16gb"
+      - "maxmemory-policy=allkeys-lru"
+    mem_limit: 18g
+```
+
+#### Performance Monitoring Setup
+```yaml
+monitoring:
+  prometheus:
+    scrape_interval: 5s
+    retention: 30d
+    mem_limit: 8g
+    
+  grafana:
+    dashboards:
+      - "Single Server Performance"
+      - "Log Processing Metrics"
+      - "Resource Usage"
+    mem_limit: 4g
 ``` 
