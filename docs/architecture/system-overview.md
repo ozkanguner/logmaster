@@ -6,6 +6,8 @@ LogMaster v2 is designed as a multi-tier, microservices-based enterprise log man
 
 ## 📊 System Architecture Diagram
 
+### 🏢 Enterprise-Level Architecture (Full Implementation)
+
 ```mermaid
 graph TB
     subgraph "USER LAYER"
@@ -128,6 +130,92 @@ graph TB
     class PROM,GRAF monitorLayer
     class LOGS,ARCH,BACKUP storageLayer
 ```
+
+### 🚀 MVP System Architecture (Simplified for Quick Start)
+
+```mermaid
+graph TB
+    subgraph "USERS"
+        ADMIN["👤 Admin"]
+        USER["👨‍💻 Network Manager"]
+    end
+    
+    subgraph "WEB TIER"
+        NGINX["🌐 Nginx<br/>Port 80/443"]
+        REACT["⚛️ React UI<br/>Log Viewer"]
+    end
+    
+    subgraph "API TIER"
+        FASTAPI["🚀 FastAPI<br/>Port 8000"]
+        AUTH["🔐 JWT Auth"]
+    end
+    
+    subgraph "BUSINESS TIER"
+        LOG_ENGINE["📊 Log Engine"]
+        DEVICE_MGR["📱 Device Manager"]
+        PARSER["🔄 Log Parser"]
+    end
+    
+    subgraph "DATA TIER"
+        PG["🐘 PostgreSQL<br/>Metadata + Index"]
+        FILES["📁 File Storage<br/>/var/log/logmaster/"]
+    end
+    
+    subgraph "LOG COLLECTION"
+        SYSLOG["📡 Syslog Server<br/>UDP 514"]
+    end
+    
+    subgraph "NETWORK DEVICES"
+        FW["🔥 Firewall"]
+        RTR["🔀 Router"]
+        SW["🔌 Switch"]
+    end
+    
+    %% User Flow
+    ADMIN --> NGINX
+    USER --> NGINX
+    NGINX --> REACT
+    NGINX --> FASTAPI
+    
+    %% API Flow
+    REACT --> FASTAPI
+    FASTAPI --> AUTH
+    FASTAPI --> LOG_ENGINE
+    FASTAPI --> DEVICE_MGR
+    
+    %% Data Flow
+    LOG_ENGINE --> PG
+    LOG_ENGINE --> FILES
+    DEVICE_MGR --> PG
+    
+    %% Log Collection Flow
+    FW --> SYSLOG
+    RTR --> SYSLOG
+    SW --> SYSLOG
+    SYSLOG --> PARSER
+    PARSER --> LOG_ENGINE
+    
+    classDef mvpCore fill:#e8f5e8,stroke:#4caf50,stroke-width:3px
+    classDef mvpUser fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
+    classDef mvpData fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    
+    class SYSLOG,PARSER,LOG_ENGINE,FASTAPI,REACT mvpCore
+    class ADMIN,USER,AUTH,DEVICE_MGR mvpUser
+    class PG,FILES,FW,RTR,SW mvpData
+```
+
+### 📋 Architecture Comparison
+
+| Component | MVP Implementation | Enterprise Implementation |
+|-----------|-------------------|---------------------------|
+| **Web Layer** | Nginx + React | Nginx + React + Mobile App |
+| **Authentication** | Basic JWT | JWT + LDAP + RBAC + 2FA |
+| **API Layer** | FastAPI Single Instance | FastAPI + Load Balancer |
+| **Data Storage** | PostgreSQL + Files | PostgreSQL + Elasticsearch + Redis |
+| **Log Processing** | Synchronous Parser | Async Workers + Queue |
+| **Monitoring** | Basic Health Checks | Prometheus + Grafana |
+| **Compliance** | File Retention | Digital Signatures + TSA |
+| **Deployment** | Single Server | Multi-tier + HA |
 
 ## 🔧 Architecture Components
 
