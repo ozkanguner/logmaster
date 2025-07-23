@@ -63,33 +63,28 @@ EXPOSE 514/udp 514/tcp 6514/tcp
 CMD ["/usr/sbin/rsyslogd", "-n", "-f", "/etc/rsyslog.conf"]
 EOF
 
-# Simple docker-compose
-print_step "Creating docker-compose..."
-cat > docker-compose.yml << 'EOF'
-version: '3.8'
-
-services:
-  rsyslog-server:
-    build: .
-    container_name: rsyslog-server-1.1
-    ports:
-      - "514:514/udp"
-      - "514:514/tcp" 
-      - "6514:6514/tcp"
-    volumes:
-      - rsyslog-logs:/var/log/rsyslog
-    restart: unless-stopped
-
-volumes:
-  rsyslog-logs:
-EOF
-
-# Build and start
+# Build Docker image
 print_step "Building Docker image..."
 docker build -t logmaster/rsyslog-server:1.1 .
 
+# Stop and remove existing container if exists
+print_step "Cleaning up existing container..."
+docker stop rsyslog-server-1.1 2>/dev/null || true
+docker rm rsyslog-server-1.1 2>/dev/null || true
+
+# Create volume if not exists
+docker volume create rsyslog-logs 2>/dev/null || true
+
+# Start container with docker run
 print_step "Starting container..."
-docker-compose up -d
+docker run -d \
+    --name rsyslog-server-1.1 \
+    --restart unless-stopped \
+    -p 514:514/udp \
+    -p 514:514/tcp \
+    -p 6514:6514/tcp \
+    -v rsyslog-logs:/var/log/rsyslog \
+    logmaster/rsyslog-server:1.1
 
 # Wait and check
 sleep 5
@@ -103,6 +98,11 @@ if docker ps | grep -q "rsyslog-server-1.1"; then
     echo "   ./test.sh    # Run tests"
     echo "   docker logs rsyslog-server-1.1  # View logs"
     echo "   echo 'test' | nc -u localhost 514  # Send test message"
+    echo ""
+    echo "📦 Container Management:"
+    echo "   docker stop rsyslog-server-1.1   # Stop container"
+    echo "   docker start rsyslog-server-1.1  # Start container"
+    echo "   docker restart rsyslog-server-1.1 # Restart container"
 else
     echo "❌ Container failed to start"
     docker logs rsyslog-server-1.1
