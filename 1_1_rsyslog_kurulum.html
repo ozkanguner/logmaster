@@ -327,637 +327,105 @@ modules/1.1-rsyslog-server/
              </div>
 
              <div class="section">
-                 <h2>🚀 Kurulum Adımları</h2>
-
-                                 <div class="step-card">
-                     <div class="step-number">1</div>
-                     <h3>📥 Repository Setup ve install.sh Çalıştırma</h3>
-                     <p>GitHub'dan modülü klonlayıp tek komutla kurulum yapıyoruz:</p>
-                     
-                     <div class="command-grid">
-                         <div class="command-desc">
-                             <strong>GitHub Clone ve Setup:</strong><br>
-                             Repository'yi klonla ve modül dizinine git
-                         </div>
-                         <div class="code-block">
- <span class="comment"># GitHub repo klonla</span>
- git clone https://github.com/ozkanguner/logmaster.git
- cd logmaster/modules/1.1-rsyslog-server
- 
- <span class="comment"># Script'leri executable yap</span>
- chmod +x install.sh test.sh
-                         </div>
-                     </div>
-
-                     <div class="command-grid">
-                         <div class="command-desc">
-                             <strong>🚀 Tek Komutla Kurulum:</strong><br>
-                             install.sh her şeyi otomatik yapar (12 adım)
-                         </div>
-                         <div class="code-block">
- <span class="comment"># install.sh çalıştır (HER ŞEYİ YAPAR)</span>
- ./install.sh
- 
- <span class="comment"># Script otomatik olarak şunları yapar:</span>
- <span class="comment"># ✅ Docker prerequisite kontrolü</span>
- <span class="comment"># ✅ Dockerfile oluşturma</span>
- <span class="comment"># ✅ RSyslog config dosyaları</span>
- <span class="comment"># ✅ SSL sertifika scripti</span>
- <span class="comment"># ✅ Docker Compose yapılandırması</span>
- <span class="comment"># ✅ Firewall kuralları</span>
- <span class="comment"># ✅ Docker build ve start</span>
- <span class="comment"># ✅ Health check ve validation</span>
-                         </div>
-                     </div>
+                 <h2>🚀 Tek Komutla Kurulum</h2>
+                 
+                 <div class="info-box">
+                     <strong>📋 3 Basit Adım:</strong> Clone → Install → Test<br>
+                     <strong>⏱️ Süre:</strong> 5-10 dakika<br>
+                     <strong>🎯 Sonuç:</strong> Production-ready RSyslog server
                  </div>
 
-                                 <div class="step-card">
-                     <div class="step-number">2</div>
-                     <h3>🧪 test.sh ile Doğrulama</h3>
-                     <p>Kurulum bittikten sonra tek komutla 20 farklı test çalıştırıyoruz:</p>
-                     
-                     <div class="command-grid">
-                         <div class="command-desc">
-                             <strong>🔍 Comprehensive Testing:</strong><br>
-                             test.sh 20 farklı senaryoyu otomatik test eder
-                         </div>
-                         <div class="code-block">
- <span class="comment"># Tek komutla tüm testleri çalıştır</span>
- ./test.sh
- 
- <span class="comment"># 20 test kategorisi:</span>
- <span class="comment"># ✅ Container health & process checks</span>
- <span class="comment"># ✅ Port accessibility (UDP/TCP/TLS)</span>
- <span class="comment"># ✅ SSL certificate validation</span>
- <span class="comment"># ✅ Log message reception tests</span>
- <span class="comment"># ✅ Performance throughput tests</span>
- <span class="comment"># ✅ Memory/disk usage monitoring</span>
- <span class="comment"># ✅ Security validation</span>
- <span class="comment"># ✅ Restart resilience tests</span>
-                         </div>
+                 <div class="step-card">
+                     <div class="step-number">1</div>
+                     <h3>📥 Kopyala ve Yapıştır</h3>
+                     <div class="code-block">
+<span class="comment"># 1. Repository klonla ve dizine gir</span>
+git clone https://github.com/ozkanguner/logmaster.git
+cd logmaster/modules/1.1-rsyslog-server
+
+<span class="comment"># 2. İzinleri ver</span>
+chmod +x install.sh test.sh
+
+<span class="comment"># 3. Tek komutla kur (otomatik 12 adım)</span>
+./install.sh
+
+<span class="comment"># 4. Tek komutla test et (20 kapsamlı test)</span>
+./test.sh
                      </div>
                      
                      <div class="success-box">
-                         <strong>✅ Başarı Kriterleri:</strong><br>
-                         Tüm testler PASS olduktan sonra modül 1.1 tamamlanmış sayılır ve sonraki modüle geçilebilir.
+                         <strong>🎉 Bu kadar!</strong> Tüm testler PASS olursa Modül 1.1 hazır!
                      </div>
                  </div>
 
-                                              </div>
-
-             <!-- install.sh İçeriği -->
-             <div class="section">
-                 <h2>📋 install.sh Script İçeriği</h2>
-                 
-                 <div class="info-box">
-                     <strong>🚀 install.sh Neler Yapar:</strong><br>
-                     12 adımda Docker container'ını kurar, yapılandırır ve başlatır.
-                 </div>
-                 
-                 <div class="command-grid">
-                     <div class="command-desc">
-                         <strong>Otomatik Adımlar:</strong><br>
-                         Script içinde gerçekleşen 12 adım
-                     </div>
-                     <div class="code-block">
- <span class="comment"># install.sh otomatik adımları:</span>
- 
- <span class="comment"># 1. Prerequisite kontrolü (Docker vb.)</span>
- <span class="comment"># 2. Directory yapısı oluşturma</span>
- <span class="comment"># 3. Dockerfile auto-generation</span>
- <span class="comment"># 4. RSyslog config files oluşturma</span>
- <span class="comment"># 5. Helper scripts (SSL, entrypoint, health-check)</span>
- <span class="comment"># 6. Docker Compose yapılandırması</span>
- <span class="comment"># 7. Firewall configuration (UFW)</span>
- <span class="comment"># 8. Docker image build</span>
- <span class="comment"># 9. Container start</span>
- <span class="comment"># 10. Health check validation</span>
- <span class="comment"># 11. Status reporting</span>
- <span class="comment"># 12. Next steps guidance</span>
-                     </div>
-                 </div>
-                 
-                 <div class="success-box">
-                     <strong>✅ Sonuç:</strong><br>
-                     Script başarıyla bitince RSyslog server Docker container'ı çalışır durumda olacak!
-                 </div>
-
-             </div>
-
-             <!-- test.sh İçeriği -->
-             <div class="section">
-                 <h2>🧪 test.sh Script İçeriği</h2>
-                 
-                 <div class="info-box">
-                     <strong>🔍 test.sh Neler Test Eder:</strong><br>
-                     20 kapsamlı test senaryosu ile sistemin her yönünü doğrular.
-                 </div>
-                 
-                 <div class="command-grid">
-                     <div class="command-desc">
-                         <strong>20 Test Kategorisi:</strong><br>
-                         Her category otomatik olarak test edilir
-                     </div>
-                     <div class="code-block">
- <span class="comment"># test.sh test kategorileri:</span>
- 
- <span class="comment"># 1-5: Basic Health Checks</span>
- <span class="comment"># ✅ Container existence and status</span>
- <span class="comment"># ✅ Container health check</span>
- <span class="comment"># ✅ RSyslog process running</span>
- <span class="comment"># ✅ UDP port 514 listening</span>
- <span class="comment"># ✅ TCP port 514 listening</span>
- 
- <span class="comment"># 6-10: Network & Security</span>
- <span class="comment"># ✅ TLS port 6514 listening</span>
- <span class="comment"># ✅ External port accessibility</span>
- <span class="comment"># ✅ SSL certificates exist</span>
- <span class="comment"># ✅ Log directories writable</span>
- <span class="comment"># ✅ Configuration syntax check</span>
- 
- <span class="comment"># 11-15: Functional Tests</span>
- <span class="comment"># ✅ UDP log message reception</span>
- <span class="comment"># ✅ TCP log message reception</span>
- <span class="comment"># ✅ Performance test (100 messages)</span>
- <span class="comment"># ✅ Memory usage check</span>
- <span class="comment"># ✅ Container restart test</span>
- 
- <span class="comment"># 16-20: Advanced Validation</span>
- <span class="comment"># ✅ Log rotation configuration</span>
- <span class="comment"># ✅ Volume mounts verification</span>
- <span class="comment"># ✅ Network connectivity</span>
- <span class="comment"># ✅ Disk usage check</span>
- <span class="comment"># ✅ Security process user check</span>
-                     </div>
-                 </div>
-                 
-                 <div class="success-box">
-                     <strong>✅ Test Sonucu:</strong><br>
-                     Tüm testler PASS olursa modül 1.1 tamamlanmış sayılır!
+                 <div class="step-card">
+                     <div class="step-number">2</div>
+                     <h3>🔍 install.sh Neler Yapar?</h3>
+                     <ul>
+                         <li>✅ Docker kontrol ve kurulum</li>
+                         <li>✅ RSyslog 8.x Docker container oluşturma</li>
+                         <li>✅ TLS/SSL sertifika üretimi</li>
+                         <li>✅ Firewall yapılandırması (UDP 514, TCP 514, TLS 6514)</li>
+                         <li>✅ Container başlatma ve health check</li>
+                     </ul>
                  </div>
 
                  <div class="step-card">
                      <div class="step-number">3</div>
-                     <h3>🚀 Sonraki Adımlar</h3>
-                     <p>Modül 1.1 başarıyla tamamlandıktan sonra neler yapmalı:</p>
-                     
-                     <div class="command-grid">
-                         <div class="command-desc">
-                             <strong>📋 GitHub Commit:</strong><br>
-                             Modülü GitHub'a commit ve push et
-                         </div>
-                         <div class="code-block">
- <span class="comment"># Modül 1.1 tamamlandıktan sonra</span>
- git add .
- git commit -m "Module 1.1: RSyslog Server Complete
- 
- - ✅ install.sh: All-in-one installer (12 steps)
- - ✅ test.sh: Comprehensive testing (20 tests)
- - ✅ README.md: Simple documentation
- - ✅ Docker container working
- - ✅ All tests passing"
- 
- git push origin module-1.1-rsyslog-server
-                         </div>
-                     </div>
+                     <h3>🧪 test.sh Neler Test Eder?</h3>
+                     <ul>
+                         <li>✅ Container sağlık kontrolü (5 test)</li>
+                         <li>✅ Ağ ve güvenlik testleri (5 test)</li>
+                         <li>✅ Log alma/gönderme testleri (5 test)</li>
+                         <li>✅ Performans ve güvenilirlik (5 test)</li>
+                     </ul>
+                 </div>
 
-                     <div class="command-grid">
-                         <div class="command-desc">
-                             <strong>🚀 Modül 1.2'ye Geçiş:</strong><br>
-                             Tenant Database Schema modülü için hazırlık
-                         </div>
-                         <div class="code-block">
- <span class="comment"># Sonraki modül için yeni branch oluştur</span>
- git checkout -b module-1.2-tenant-database-schema
- 
- <span class="comment"># Modül 1.2 klasör yapısını oluştur</span>
- mkdir -p modules/1.2-tenant-database-schema
- cd modules/1.2-tenant-database-schema
- 
- <span class="comment"># Modül 1.2 dosyalarını oluştur</span>
- touch install.sh test.sh README.md
- chmod +x install.sh test.sh
- 
- <span class="comment"># Modül 1.2 development başlasın!</span>
-   echo "# Module 1.2: Tenant Database Schema" > README.md
-                         </div>
+                 </div>
+
+             <!-- Hızlı Kullanım -->
+             <div class="section">
+                 <h2>⚡ Hızlı Yönetim Komutları</h2>
+                 
+                 <div class="step-card">
+                     <h3>🔍 Durumu Kontrol Et</h3>
+                     <div class="code-block">
+<span class="comment"># Container durumu</span>
+docker ps | grep rsyslog
+
+<span class="comment"># Logları görüntüle</span>
+docker logs rsyslog-server-1.1
+
+<span class="comment"># Test mesajı gönder</span>
+echo "TEST: $(date)" | nc -u localhost 514
                      </div>
-                     
-                     <div class="success-box">
-                         <strong>🎉 Modül 1.1 Tamamlandı!</strong><br>
-                         Bu basit 3 adımla RSyslog server modülü tamamen hazır!
+                 </div>
+
+                 <div class="step-card">
+                     <h3>🔧 Yönet</h3>
+                     <div class="code-block">
+<span class="comment"># Durdur</span>
+docker-compose down
+
+<span class="comment"># Yeniden başlat</span>
+docker-compose restart
+
+<span class="comment"># Tamamen yeniden kur</span>
+docker-compose down && ./install.sh
+                     </div>
+                 </div>
+
+                 <div class="step-card">
+                     <h3>🚀 Sonraki Modül</h3>
+                     <div class="code-block">
+<span class="comment"># Modül 1.2'ye geç</span>
+cd ../../
+git checkout -b module-1.2-tenant-database-schema
                      </div>
                  </div>
              </div>
 
-                                 <div class="step-card">
-                     <div class="step-number">5</div>
-                     <h3>Script Dosyalarının Oluşturulması</h3>
-                     <p>Docker container için gerekli script dosyalarını hazırlayalım:</p>
-                     
-                     <div class="command-grid">
-                         <div class="command-desc">
-                             <strong>SSL Sertifika Script:</strong><br>
-                             scripts/generate-certs.sh - TLS sertifikalarını oluşturur
-                         </div>
-                         <div class="code-block">
- <span class="comment"># scripts/generate-certs.sh</span>
- #!/bin/bash
- set -e
- 
- CERT_DIR="/etc/ssl/rsyslog"
- 
- <span class="comment"># SSL sertifikalarını oluştur</span>
- if [ ! -f "$CERT_DIR/server-cert.pem" ]; then
-     echo "Generating SSL certificates..."
-     
-     <span class="comment"># Private key oluştur</span>
-     openssl genrsa -out "$CERT_DIR/server-key.pem" 2048
-     
-     <span class="comment"># CSR oluştur</span>
-     openssl req -new -key "$CERT_DIR/server-key.pem" \
-         -out "$CERT_DIR/server.csr" \
-         -subj "/C=TR/ST=Istanbul/L=Istanbul/O=LogMaster/CN=rsyslog-server"
-     
-     <span class="comment"># Self-signed sertifika oluştur</span>
-     openssl x509 -req -days 365 -in "$CERT_DIR/server.csr" \
-         -signkey "$CERT_DIR/server-key.pem" \
-         -out "$CERT_DIR/server-cert.pem"
-     
-     <span class="comment"># İzinleri ayarla</span>
-     chmod 600 "$CERT_DIR/server-key.pem"
-     chmod 644 "$CERT_DIR/server-cert.pem"
-     chown root:root "$CERT_DIR"/*
-     
-     echo "SSL certificates generated successfully"
- fi
-                         </div>
-                     </div>
-
-                     <div class="command-grid">
-                         <div class="command-desc">
-                             <strong>Entrypoint Script:</strong><br>
-                             scripts/entrypoint.sh - Container başlangıç script'i
-                         </div>
-                         <div class="code-block">
- <span class="comment"># scripts/entrypoint.sh</span>
- #!/bin/bash
- set -e
- 
- <span class="comment"># SSL sertifikalarını kontrol et</span>
- /usr/local/bin/generate-certs.sh
- 
- <span class="comment"># Log dizinlerini oluştur</span>
- mkdir -p /var/log/rsyslog /var/spool/rsyslog
- chown root:adm /var/log/rsyslog
- chmod 755 /var/log/rsyslog
- 
- <span class="comment"># RSyslog konfigürasyonunu test et</span>
- echo "Testing RSyslog configuration..."
- rsyslogd -N1 -f /etc/rsyslog.conf
- 
- <span class="comment"># Verilen komutu çalıştır</span>
- echo "Starting RSyslog server..."
- exec "$@"
-                         </div>
-                     </div>
-
-                     <div class="command-grid">
-                         <div class="command-desc">
-                             <strong>Health Check Script:</strong><br>
-                             scripts/health-check.sh - Container sağlık kontrolü
-                         </div>
-                         <div class="code-block">
- <span class="comment"># scripts/health-check.sh</span>
- #!/bin/bash
- 
- <span class="comment"># RSyslog procesini kontrol et</span>
- if ! pgrep -f "rsyslogd" > /dev/null; then
-     echo "RSyslog process not running"
-     exit 1
- fi
- 
- <span class="comment"># UDP port 514 kontrolü</span>
- if ! nc -u -z localhost 514; then
-     echo "UDP port 514 not listening"
-     exit 1
- fi
- 
- <span class="comment"># TCP port 514 kontrolü</span>
- if ! nc -z localhost 514; then
-     echo "TCP port 514 not listening"
-     exit 1
- fi
- 
- <span class="comment"># TLS port 6514 kontrolü</span>
- if ! nc -z localhost 6514; then
-     echo "TLS port 6514 not listening"
-     exit 1
- fi
- 
- echo "RSyslog server is healthy"
- exit 0
-                         </div>
-                     </div>
-                 </div>
-
-                                 <div class="step-card">
-                     <div class="step-number">6</div>
-                     <h3>Test Dosyalarının Oluşturulması</h3>
-                     <p>Docker container'ı test etmek için gerekli test dosyalarını hazırlayalım:</p>
-                     
-                     <div class="command-grid">
-                         <div class="command-desc">
-                             <strong>Unit Test:</strong><br>
-                             tests/unit-tests.py - Container fonksiyonalite testleri
-                         </div>
-                         <div class="code-block">
- <span class="comment"># tests/unit-tests.py</span>
- #!/usr/bin/env python3
- import unittest
- import socket
- import subprocess
- import time
- 
- class RSyslogServerTests(unittest.TestCase):
-     
-     def test_container_health(self):
-         """Container sağlık kontrolü"""
-         result = subprocess.run(['docker', 'exec', 'rsyslog-server-1.1', 
-                                '/usr/local/bin/health-check.sh'], 
-                               capture_output=True, text=True)
-         self.assertEqual(result.returncode, 0)
-     
-     def test_udp_port_514(self):
-         """UDP 514 port dinleme testi"""
-         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-         try:
-             sock.settimeout(5)
-             sock.sendto(b"test message", ('localhost', 514))
-             result = True
-         except Exception as e:
-             result = False
-         finally:
-             sock.close()
-         self.assertTrue(result)
-     
-     def test_tcp_port_514(self):
-         """TCP 514 port dinleme testi"""
-         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-         try:
-             sock.settimeout(5)
-             result = sock.connect_ex(('localhost', 514))
-             success = (result == 0)
-         except Exception as e:
-             success = False
-         finally:
-             sock.close()
-         self.assertTrue(success)
-     
-     def test_tls_port_6514(self):
-         """TLS 6514 port dinleme testi"""
-         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-         try:
-             sock.settimeout(5)
-             result = sock.connect_ex(('localhost', 6514))
-             success = (result == 0)
-         except Exception as e:
-             success = False
-         finally:
-             sock.close()
-         self.assertTrue(success)
-
- if __name__ == '__main__':
-     unittest.main()
-                         </div>
-                     </div>
-
-                     <div class="command-grid">
-                         <div class="command-desc">
-                             <strong>Integration Test:</strong><br>
-                             tests/integration-tests.py - End-to-end test senaryoları
-                         </div>
-                         <div class="code-block">
- <span class="comment"># tests/integration-tests.py</span>
- #!/usr/bin/env python3
- import unittest
- import socket
- import time
- import subprocess
- import json
- 
- class RSyslogIntegrationTests(unittest.TestCase):
-     
-     def test_log_reception_udp(self):
-         """UDP ile log mesajı gönderme/alma testi"""
-         test_message = "TEST: Integration test UDP message"
-         
-         <span class="comment"># UDP ile mesaj gönder</span>
-         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-         sock.sendto(test_message.encode(), ('localhost', 514))
-         sock.close()
-         
-         <span class="comment"># Log dosyasında mesajı kontrol et</span>
-         time.sleep(2)
-         result = subprocess.run(['docker', 'exec', 'rsyslog-server-1.1',
-                                'grep', test_message, '/var/log/rsyslog/messages'],
-                               capture_output=True, text=True)
-         self.assertEqual(result.returncode, 0)
-     
-     def test_log_reception_tcp(self):
-         """TCP ile log mesajı gönderme/alma testi"""
-         test_message = "TEST: Integration test TCP message\n"
-         
-         <span class="comment"># TCP ile mesaj gönder</span>
-         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-         sock.connect(('localhost', 514))
-         sock.send(test_message.encode())
-         sock.close()
-         
-         <span class="comment"># Log dosyasında mesajı kontrol et</span>
-         time.sleep(2)
-         result = subprocess.run(['docker', 'exec', 'rsyslog-server-1.1',
-                                'grep', "Integration test TCP", '/var/log/rsyslog/messages'],
-                               capture_output=True, text=True)
-         self.assertEqual(result.returncode, 0)
-     
-     def test_performance_basic(self):
-         """Temel performans testi - 100 mesaj/saniye"""
-         start_time = time.time()
-         
-         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-         for i in range(100):
-             message = f"PERF_TEST_{i}: Performance test message"
-             sock.sendto(message.encode(), ('localhost', 514))
-         sock.close()
-         
-         duration = time.time() - start_time
-         self.assertLess(duration, 5.0)  # 100 mesaj 5 saniyede
-
- if __name__ == '__main__':
-     unittest.main()
-                         </div>
-                     </div>
-                 </div>
-
-                <div class="step-card">
-                    <div class="step-number">7</div>
-                    <h3>Docker Build ve GitHub Push</h3>
-                    <p>Container'ı build edip GitHub'a push edelim:</p>
-                    
-                    <div class="command-grid">
-                        <div class="command-desc">
-                            <strong>Docker Build:</strong><br>
-                            Modül 1.1 container'ını build etme
-                        </div>
-                        <div class="code-block">
-<span class="comment"># Docker image build et</span>
-cd modules/1.1-rsyslog-server
-docker build -f docker/Dockerfile -t logmaster/rsyslog-server:1.1 .
-
-<span class="comment"># Image boyutunu kontrol et</span>
-docker images | grep logmaster/rsyslog-server
-
-<span class="comment"># Container'ı test için çalıştır</span>
-docker-compose -f docker/docker-compose.yml up -d
-
-<span class="comment"># Logları kontrol et</span>
-docker logs rsyslog-server-1.1
-                        </div>
-                    </div>
-
-                    <div class="command-grid">
-                        <div class="command-desc">
-                            <strong>GitHub Repository Push:</strong><br>
-                            Değişiklikleri GitHub'a commit ve push etme
-                        </div>
-                        <div class="code-block">
-<span class="comment"># Git add ve commit</span>
-git add .
-git commit -m "Module 1.1: RSyslog Server Docker Implementation
-
-- Production-ready RSyslog 8.x container
-- TLS/SSL support with auto-generated certificates  
-- UDP/TCP/TLS listeners (514, 6514)
-- Health checks and monitoring
-- Complete test suite
-- Docker Compose orchestration"
-
-<span class="comment"># GitHub'a push</span>
-git push origin module-1.1-rsyslog-server
-
-<span class="comment"># Docker image'ı registry'e push (opsiyonel)</span>
-docker tag logmaster/rsyslog-server:1.1 \
-    ghcr.io/ozkanguner/logmaster/rsyslog-server:1.1
-docker push ghcr.io/ozkanguner/logmaster/rsyslog-server:1.1
-                        </div>
-                    </div>
-                </div>
-
-                <div class="step-card">
-                    <div class="step-number">8</div>
-                    <h3>Ubuntu Sunucuda Deploy ve Test</h3>
-                    <p>Modül 1.1'i Ubuntu sunucuda kurulup test edelim:</p>
-                    
-                    <div class="command-grid">
-                        <div class="command-desc">
-                            <strong>Sunucu Hazırlığı:</strong><br>
-                            Ubuntu sunucuda Docker kurulumu ve repo klonlama
-                        </div>
-                        <div class="code-block">
-<span class="comment"># Ubuntu sunucuya SSH ile bağlan</span>
-ssh username@server-ip
-
-<span class="comment"># Docker ve Docker Compose kurulumu</span>
-sudo apt update
-sudo apt install -y docker.io docker-compose-plugin
-sudo systemctl enable docker
-sudo systemctl start docker
-sudo usermod -aG docker $USER
-
- <span class="comment"># GitHub repo'yu klonla</span>
- git clone https://github.com/ozkanguner/logmaster.git
- cd logmaster
-git checkout module-1.1-rsyslog-server
-                        </div>
-                    </div>
-
-                    <div class="command-grid">
-                        <div class="command-desc">
-                            <strong>Firewall Yapılandırması:</strong><br>
-                            RSyslog portları için UFW kuralları
-                        </div>
-                        <div class="code-block">
-<span class="comment"># UFW ile portları aç</span>
-sudo ufw allow 514/udp comment 'RSyslog UDP'
-sudo ufw allow 514/tcp comment 'RSyslog TCP'
-sudo ufw allow 6514/tcp comment 'RSyslog TLS'
-sudo ufw allow 22/tcp comment 'SSH'
-
-<span class="comment"># UFW durumunu kontrol et</span>
-sudo ufw status numbered
-                        </div>
-                    </div>
-                </div>
-
-                <div class="step-card">
-                    <div class="step-number">9</div>
-                    <h3>Container Deployment ve Başlatma</h3>
-                    <p>Docker container'ı build edip çalıştıralım:</p>
-                    
-                    <div class="code-block">
-<span class="comment"># Modül 1.1 dizinine git</span>
-cd modules/1.1-rsyslog-server
-
-<span class="comment"># Docker image'ı build et</span>
-docker build -f docker/Dockerfile -t logmaster/rsyslog-server:1.1 .
-
-<span class="comment"># Container'ları başlat</span>
-docker-compose -f docker/docker-compose.yml up -d
-
-<span class="comment"># Container durumunu kontrol et</span>
-docker ps | grep rsyslog-server
-
-<span class="comment"># Container loglarını kontrol et</span>
-docker logs rsyslog-server-1.1
-
-<span class="comment"># Portların dinlendiğini kontrol et</span>
-sudo netstat -tulpn | grep ":514\|:6514"
-
-<span class="comment"># Health check testi</span>
-docker exec rsyslog-server-1.1 /usr/local/bin/health-check.sh
-                    </div>
-                </div>
-
-                <div class="step-card">
-                    <div class="step-number">10</div>
-                    <h3>Test Suite Çalıştırma ve Doğrulama</h3>
-                    <p>Tüm testleri çalıştırıp modülün başarıyla çalıştığını doğrulayalım:</p>
-                    
-                    <div class="code-block">
-<span class="comment"># Unit testleri çalıştır</span>
-python3 tests/unit-tests.py -v
-
-<span class="comment"># Integration testleri çalıştır</span>
-python3 tests/integration-tests.py -v
-
-<span class="comment"># Manuel test log mesajı gönder</span>
-echo "TEST: Manual UDP test $(date)" | nc -u localhost 514
-echo "TEST: Manual TCP test $(date)" | nc localhost 514
-
-<span class="comment"># Log dosyasında testleri kontrol et</span>
-docker exec rsyslog-server-1.1 tail -10 /var/log/rsyslog/messages
-
-<span class="comment"># Container resource kullanımını kontrol et</span>
-docker stats rsyslog-server-1.1 --no-stream
-
-<span class="comment"># Volume'leri kontrol et</span>
-docker volume ls | grep rsyslog
-
-<span class="comment"># Son kontrol: Tüm servisler çalışıyor mu?</span>
-docker-compose -f docker/docker-compose.yml ps
-                    </div>
-                </div>
+                
             </div>
 
             <!-- Port Tablosu -->
@@ -1006,160 +474,35 @@ docker-compose -f docker/docker-compose.yml ps
                 </table>
             </div>
 
-            <!-- Performans Optimizasyonu -->
-            <div class="section">
-                <h2>⚡ Performans Optimizasyonu</h2>
-                
-                <div class="warning-box">
-                    <strong>⚠️ Önemli:</strong> Bu optimizasyonları üretim ortamında uygulamadan önce test ortamında deneyin.
-                </div>
+                         <!-- Başarı Kriterleri -->
+             <div class="section">
+                 <h2>✅ Başarı Kriterleri</h2>
+                 
+                 <div class="success-box">
+                     <strong>🎉 Modül 1.1 Tamamlandı!</strong><br>
+                     Aşağıdaki tüm kriterler sağlandıysa sonraki modüle geçilebilir.
+                 </div>
 
-                <h3>Sistem Kernel Parametreleri</h3>
-                <div class="code-block">
-<span class="comment"># /etc/sysctl.conf dosyasına ekle</span>
-sudo tee -a /etc/sysctl.conf > /dev/null << 'EOF'
+                 <div class="step-card">
+                     <h3>✅ Gerekli Kontroller</h3>
+                     <ul>
+                         <li>✅ <code>docker ps</code> - rsyslog-server-1.1 RUNNING</li>
+                         <li>✅ <code>./test.sh</code> - Tüm 20 test PASS</li>
+                         <li>✅ Portlar açık: UDP 514, TCP 514, TLS 6514</li>
+                         <li>✅ Log mesajları alınıp kaydediliyor</li>
+                         <li>✅ SSL/TLS sertifikaları çalışıyor</li>
+                     </ul>
+                 </div>
 
-# RSyslog performance tuning
-net.core.rmem_default = 262144
-net.core.rmem_max = 16777216
-net.core.wmem_default = 262144
-net.core.wmem_max = 16777216
-net.ipv4.udp_rmem_min = 8192
-net.ipv4.udp_wmem_min = 8192
-net.core.netdev_max_backlog = 5000
-EOF
-
-<span class="comment"># Parametreleri uygula</span>
-sudo sysctl -p
-                </div>
-
-                <h3>RSyslog Buffer Ayarları</h3>
-                <div class="code-block">
-<span class="comment"># /etc/rsyslog.d/99-performance.conf oluştur</span>
-sudo tee /etc/rsyslog.d/99-performance.conf > /dev/null << 'EOF'
-# Performance optimizations
-$MainMsgQueueSize 100000
-$MainMsgQueueDiscardMark 80000
-$MainMsgQueueHighWaterMark 90000
-$MainMsgQueueLowWaterMark 10000
-$MainMsgQueueWorkerThreads 8
-$MainMsgQueueTimeoutEnqueue 0
-
-# Input module specific settings
-$IMUDPSchedulingPolicy 2
-$IMUDPSchedulingPriority 1
-$IMUDPBatchSize 32
-EOF
-                </div>
-            </div>
-
-            <!-- Sonraki Adımlar -->
-            <div class="section">
-                <h2>🚀 Sonraki Adımlar - Modül 1.2'ye Geçiş</h2>
-                
-                <div class="success-box">
-                    <strong>✅ Modül 1.1 Başarıyla Tamamlandı!</strong><br>
-                    Tüm testler başarılı olduktan sonra sonraki modüle geçebilirsiniz.
-                </div>
-
-                <div class="info-box">
-                    <strong>📋 Modül 1.1 Teslim Kriterleri:</strong><br>
-                    ✅ Docker container başarıyla çalışıyor<br>
-                    ✅ UDP/TCP/TLS portları dinleniyor<br>
-                    ✅ Health check testleri geçiyor<br>
-                    ✅ Unit ve integration testleri başarılı<br>
-                    ✅ Log mesajları alınıp dosyaya yazılıyor<br>
-                    ✅ GitHub'a commit edildi ve push yapıldı
-                </div>
-
-                <h3>Modül 1.2: Tenant Database Schema</h3>
-                <p>Bir sonraki adımda multi-tenant veritabanı yapısını Docker container olarak geliştirecek ve test edeceğiz.</p>
-                
-                <div class="command-grid">
-                    <div class="command-desc">
-                        <strong>Modül 1.2 için Hazırlık:</strong><br>
-                        Yeni git branch oluştur ve PostgreSQL Docker container'ını planla
-                    </div>
-                    <div class="code-block">
-<span class="comment"># Yeni modül dalı oluştur</span>
+                 <div class="step-card">
+                     <h3>🚀 Sonraki Modül: 1.2 Tenant Database</h3>
+                     <div class="code-block">
+<span class="comment"># Modül 1.2'ye geçiş hazırlığı</span>
+cd ../../
 git checkout -b module-1.2-tenant-database-schema
-
-<span class="comment"># Modül 1.2 klasör yapısını oluştur</span>
-mkdir -p modules/1.2-tenant-database-schema/{docker,sql,scripts,tests}
-
-<span class="comment"># README dosyası oluştur</span>
-echo "# Modül 1.2: Tenant Database Schema
-Multi-tenant PostgreSQL database structure" > modules/1.2-tenant-database-schema/README.md
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sorun Giderme -->
-            <div class="section">
-                <h2>🔧 Sorun Giderme</h2>
-                
-                <h3>Yaygın Sorunlar ve Çözümleri</h3>
-                
-                <div class="step-card">
-                    <strong>Sorun:</strong> RSyslog başlamıyor<br>
-                    <strong>Çözüm:</strong>
-                    <div class="code-block">
-<span class="comment"># Yapılandırma hatalarını kontrol et</span>
-sudo rsyslogd -N1 -f /etc/rsyslog.conf
-
-<span class="comment"># Detaylı hata loglarını incele</span>
-sudo journalctl -u rsyslog -f
-
-<span class="comment"># Syntax hatası varsa düzelt</span>
-sudo rsyslogd -dn
-                    </div>
-                </div>
-
-                <div class="step-card">
-                    <strong>Sorun:</strong> Loglar gelmiyor<br>
-                    <strong>Çözüm:</strong>
-                    <div class="code-block">
-<span class="comment"># Port dinleme durumunu kontrol et</span>
-sudo netstat -tulpn | grep :514
-
-<span class="comment"># Firewall kurallarını kontrol et</span>
-sudo ufw status verbose
-sudo iptables -L -n
-
-<span class="comment"># Test log gönder</span>
-echo "Test message" | nc -u localhost 514
-                    </div>
-                </div>
-
-                <div class="step-card">
-                    <strong>Sorun:</strong> TLS bağlantı sorunları<br>
-                    <strong>Çözüm:</strong>
-                    <div class="code-block">
-<span class="comment"># Sertifika geçerliliğini kontrol et</span>
-sudo openssl x509 -in /etc/ssl/rsyslog/server-cert.pem -text -noout
-
-<span class="comment"># TLS bağlantıyı test et</span>
-openssl s_client -connect localhost:6514 -verify_return_error
-
-<span class="comment"># Sertifika izinlerini kontrol et</span>
-sudo ls -la /etc/ssl/rsyslog/
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sonraki Adımlar -->
-            <div class="section">
-                <h2>🔄 Sonraki Adımlar</h2>
-                <div class="info-box">
-                    <strong>Modül 1.1 tamamlandıktan sonra:</strong>
-                    <ul>
-                        <li>Modül 1.2: Tenant Database Schema kurulumu</li>
-                        <li>Modül 1.3: Güvenli Cihaz Kontrolü implementasyonu</li>
-                        <li>JSON Template ve Parser geliştirme</li>
-                        <li>Multi-tenant yapılandırmasına geçiş</li>
-                    </ul>
-                </div>
-            </div>
+                     </div>
+                 </div>
+             </div>
 
             <a href="5651_faz_modulleri.html" class="back-button">← Ana Plana Dön</a>
         </div>
