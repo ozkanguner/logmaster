@@ -10,6 +10,35 @@
 
 **LogMaster v2** - Türkiye 5651 Sayılı Kanun uyumlu, **saniyede 10,000+ event** işleyebilen enterprise log yönetim sistemi.
 
+### 🏨 **Multi-Tenant Hotel Chain Management**
+
+LogMaster v2, **otel zincirleri** için özel olarak tasarlanmış **multi-tenant** yapıya sahiptir:
+
+- 🏢 **Hotel Chain Support** - Merkezi zincir yönetimi
+- 🏨 **Hotel Isolation** - Her otel için ayrı veri alanı  
+- 👨‍💼 **Hotel Managers** - Sadece kendi otellerini yönetebilir
+- 📡 **Mikrotik Integration** - RouterOS cihazları için özel destek
+- 🔐 **Device Ownership** - Her otel kendi cihazlarını ekleyebilir
+
+### 📡 **Mikrotik Device Support**
+
+**Desteklenen Mikrotik Cihazları:**
+- ✅ RouterOS v7+ routers (CCR, RB series)
+- ✅ CRS series switches
+- ✅ CAP series access points  
+- ✅ Cloud Router Switch (CRS)
+- ✅ SNMP + SSH + API log collection
+- ✅ Auto-discovery ve device registration
+
+### 🔐 **Role-Based Multi-Tenancy**
+
+| Role | Erişim Seviyesi | Permissions |
+|------|----------------|-------------|
+| **Chain Admin** | Tüm oteller | Zincir yönetimi, tüm otellere erişim |
+| **Hotel Manager** | Tek otel | Kendi otelini yönetir, cihaz ekleyebilir |
+| **Hotel Viewer** | Tek otel | Sadece görüntüleme yetkisi |
+| **Device Admin** | Cihaz seviyesi | Mikrotik cihaz konfigürasyonu |
+
 ### ⚡ Performance Targets by Architecture
 
 | Architecture | Events/Second | Server Count | Monthly Cost | Complexity |
