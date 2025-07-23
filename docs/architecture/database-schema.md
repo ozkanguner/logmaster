@@ -1,91 +1,112 @@
-# LogMaster v2 - Database Schema
+# LogMaster v2 - Database Schema Architecture
 
-## 🗄️ Database Design Overview
+## 🗄️ Multi-Tenant Database Schema
 
-LogMaster v2 uses a multi-database architecture optimized for enterprise log management with granular device permissions and 5651 compliance.
+LogMaster v2 implements a comprehensive database schema optimized for **multi-tenant hotel management** with **Mikrotik device support** and granular device-level permissions.
 
-## 📊 Entity Relationship Diagram
+## 🏨 **Hotel Chain Multi-Tenancy Schema**
 
 ```mermaid
 erDiagram
+    HOTEL_CHAINS {
+        uuid id PK
+        string name
+        string description
+        string contact_email
+        string contact_phone
+        json settings
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    HOTELS {
+        uuid id PK
+        uuid chain_id FK
+        string name
+        string code
+        string address
+        string city
+        string country
+        string timezone
+        json network_config
+        string subnet_range
+        json mikrotik_settings
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+    
     USERS {
         uuid id PK
+        uuid hotel_id FK
         string username UK
         string email UK
         string password_hash
-        enum role
         string first_name
         string last_name
-        string department
-        boolean is_active
-        json allowed_ip_ranges
-        timestamp created_at
+        enum role
+        string phone
+        json preferences
         timestamp last_login
+        boolean is_active
+        uuid created_by FK
+        timestamp created_at
+        timestamp updated_at
     }
     
-    USER_SESSIONS {
+    MIKROTIK_DEVICES {
         uuid id PK
-        uuid user_id FK
-        string session_token UK
-        string refresh_token UK
+        uuid hotel_id FK
+        string device_name
+        string mac_address UK
         inet ip_address
-        text user_agent
+        string device_type
+        string routeros_version
+        string model
+        string serial_number
+        json snmp_config
+        json api_config
+        string location_description
+        enum status
+        json performance_stats
+        timestamp last_seen
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    DEVICE_CREDENTIALS {
+        uuid id PK
+        uuid device_id FK
+        string credential_type
+        bytea encrypted_username
+        bytea encrypted_password
+        string snmp_community
+        integer snmp_version
+        json ssh_config
         boolean is_active
         timestamp expires_at
-    }
-    
-    DEVICE_GROUPS {
-        uuid id PK
-        string group_name
-        string description
-        string location
-        string group_type
-        uuid parent_group_id FK
         timestamp created_at
     }
     
-    DEVICES {
-        uuid id PK
-        string mac_address UK
-        string device_name
-        inet ip_address
-        enum device_type
-        string location
-        enum status
-        uuid group_id FK
-        uuid owner_id FK
-        integer retention_days
-        json config_data
-        timestamp registration_date
-        timestamp last_seen
-    }
-    
-    USER_DEVICE_PERMISSIONS {
+    HOTEL_USER_PERMISSIONS {
         uuid id PK
         uuid user_id FK
-        uuid device_id FK
-        uuid device_group_id FK
-        enum permission_level
-        boolean can_view_logs
-        boolean can_export_logs
-        boolean can_delete_logs
-        boolean can_configure_device
-        boolean can_view_real_time
-        boolean can_access_archives
-        string access_start_time
-        string access_end_time
-        json access_days
-        json allowed_ip_ranges
+        uuid hotel_id FK
+        json device_permissions
+        json log_permissions
+        json export_permissions
+        json management_permissions
         timestamp valid_from
         timestamp valid_until
-        integer access_count
         boolean is_active
-        timestamp granted_at
+        timestamp created_at
     }
     
     LOG_ENTRIES {
         uuid id PK
         uuid device_id FK
+        uuid hotel_id FK
         text message
         text raw_message
         enum log_level
@@ -95,268 +116,410 @@ erDiagram
         integer source_port
         integer destination_port
         string protocol
+        string facility
+        string severity
         json parsed_data
         string category
-        string risk_level
+        string mikrotik_topic
+        json firewall_data
         boolean is_processed
         boolean is_indexed
         string log_file_path
         string checksum
     }
     
-    DIGITAL_SIGNATURES {
+    HOTEL_COMPLIANCE_RECORDS {
         uuid id PK
-        uuid device_id FK
-        string file_path
-        string file_name
-        bigint file_size
-        string file_hash
-        bytea signature_data
-        string signature_algorithm
-        timestamp signed_at
-        boolean is_valid
-        integer log_count
-        timestamp date_range_start
-        timestamp date_range_end
-    }
-    
-    COMPLIANCE_REPORTS {
-        uuid id PK
-        string report_type
-        timestamp report_period_start
-        timestamp report_period_end
-        json report_data
-        json summary
-        json violations
+        uuid hotel_id FK
+        string record_type
+        timestamp period_start
+        timestamp period_end
+        json compliance_data
+        json signatures
         string status
         timestamp generated_at
-        uuid created_by FK
+        uuid generated_by FK
     }
     
-    SECURITY_ALERTS {
+    DEVICE_MONITORING {
         uuid id PK
-        uuid log_entry_id FK
+        uuid device_id FK
+        uuid hotel_id FK
+        json cpu_stats
+        json memory_stats
+        json interface_stats
+        json uptime_data
+        json temperature_data
+        timestamp collected_at
+    }
+    
+    HOTEL_ALERTS {
+        uuid id PK
+        uuid hotel_id FK
         uuid device_id FK
         string alert_type
         string severity
         string title
         text description
-        string detection_method
-        float confidence_score
-        string status
-        uuid assigned_to FK
+        json alert_data
+        boolean is_resolved
+        timestamp triggered_at
         timestamp resolved_at
+        uuid resolved_by FK
     }
-    
-    AUDIT_LOGS {
-        uuid id PK
-        uuid user_id FK
-        string action
-        string resource_type
-        string resource_id
-        inet ip_address
-        text user_agent
-        json details
-        json old_values
-        json new_values
-        boolean success
-        text error_message
-        timestamp timestamp
-    }
-    
-    USERS ||--o{ USER_SESSIONS : "has"
-    USERS ||--o{ USER_DEVICE_PERMISSIONS : "grants"
-    USERS ||--o{ DEVICES : "owns"
-    USERS ||--o{ COMPLIANCE_REPORTS : "creates"
-    USERS ||--o{ SECURITY_ALERTS : "assigned_to"
-    USERS ||--o{ AUDIT_LOGS : "performs"
-    
-    DEVICE_GROUPS ||--o{ DEVICE_GROUPS : "parent_child"
-    DEVICE_GROUPS ||--o{ DEVICES : "contains"
-    DEVICE_GROUPS ||--o{ USER_DEVICE_PERMISSIONS : "applies_to"
-    
-    DEVICES ||--o{ USER_DEVICE_PERMISSIONS : "secured_by"
-    DEVICES ||--o{ LOG_ENTRIES : "generates"
-    DEVICES ||--o{ DIGITAL_SIGNATURES : "signed_for"
-    DEVICES ||--o{ SECURITY_ALERTS : "triggers"
-    
-    LOG_ENTRIES ||--o{ SECURITY_ALERTS : "analyzed_for"
+
+    %% Relationships
+    HOTEL_CHAINS ||--o{ HOTELS : "owns"
+    HOTELS ||--o{ USERS : "employs"
+    HOTELS ||--o{ MIKROTIK_DEVICES : "has"
+    MIKROTIK_DEVICES ||--|| DEVICE_CREDENTIALS : "secured_by"
+    USERS ||--o{ HOTEL_USER_PERMISSIONS : "has"
+    HOTELS ||--o{ HOTEL_USER_PERMISSIONS : "grants"
+    MIKROTIK_DEVICES ||--o{ LOG_ENTRIES : "generates"
+    HOTELS ||--o{ LOG_ENTRIES : "contains"
+    HOTELS ||--o{ HOTEL_COMPLIANCE_RECORDS : "maintains"
+    MIKROTIK_DEVICES ||--o{ DEVICE_MONITORING : "monitored_by"
+    HOTELS ||--o{ HOTEL_ALERTS : "receives"
+    MIKROTIK_DEVICES ||--o{ HOTEL_ALERTS : "triggers"
 ```
 
-## 📋 Table Descriptions
+## 🏨 **Hotel Management Tables**
 
-### 👥 Users & Authentication
-
-#### `users`
-Central user management with enhanced security features:
-- **UUID primary keys** for better security
-- **Role-based classification** (admin, network_manager, security_analyst, etc.)
-- **LDAP integration** support with external_id
-- **IP restriction** capabilities with JSONB arrays
-- **Account lockout** mechanism for failed login attempts
-- **Two-factor authentication** support
-
-#### `user_sessions`
-Comprehensive session tracking for security auditing:
-- **Session tokens** with expiration
-- **Device fingerprinting** for security
-- **IP tracking** for location monitoring
-- **Active session management**
-
-### 📱 Device Management
-
-#### `device_groups`
-Hierarchical device organization:
-- **Self-referencing** for parent-child relationships
-- **Location-based** grouping (building, floor, room)
-- **Function-based** grouping (firewall, router, switch)
-- **Security-level** grouping (critical, high, medium, low)
-
-#### `devices`
-Enhanced device registration with MAC-based authentication:
-- **MAC address** as unique identifier
-- **Network information** (IP, hostname, port)
-- **Hardware details** (manufacturer, model, firmware)
-- **Status tracking** (pending, active, inactive, maintenance)
-- **Configuration storage** in JSONB format
-- **Flexible tagging** system
-
-### 🔐 Permission Management
-
-#### `user_device_permissions`
-Granular device-specific permissions:
-- **Multiple permission levels** (read, write, admin, owner)
-- **Action-based permissions** for specific operations
-- **Time-based restrictions** (hours, days, date ranges)
-- **IP-based restrictions** with CIDR notation support
-- **Usage tracking** (access count, last accessed)
-- **Audit trail** (granted by, granted at)
-
-### 📊 Log Management
-
-#### `log_entries`
-Comprehensive log storage with enhanced metadata:
-- **Device relationship** for log source tracking
-- **Parsed data** in JSONB for flexible querying
-- **Network information** (source/destination IP and ports)
-- **Security classification** (risk level, category)
-- **Processing status** tracking
-- **File system integration** with path and checksum
-
-### ⚖️ Compliance & Security
-
-#### `digital_signatures`
-5651 compliance digital signatures:
-- **File integrity** with SHA-256 hashing
-- **RSA signature** data storage
-- **TSA timestamping** support
-- **Verification status** tracking
-- **Date range coverage** for compliance periods
-
-#### `compliance_reports`
-Automated compliance reporting:
-- **Multiple report types** (daily, weekly, monthly, yearly)
-- **Structured data** in JSONB format
-- **Violation tracking** and recommendations
-- **Approval workflow** with multiple reviewers
-
-#### `security_alerts`
-Advanced threat detection and alerting:
-- **ML-based detection** with confidence scoring
-- **Alert management** workflow
-- **False positive** tracking
-- **Assignment and resolution** tracking
-
-#### `audit_logs`
-Comprehensive activity auditing:
-- **Complete action tracking** for all user activities
-- **Before/after values** for change tracking
-- **Session correlation** with IP and user agent
-- **Success/failure** tracking with error details
-
-## 🔍 Database Indexes
-
-### Performance Indexes
+### `hotel_chains`
+Hotel zinciri yönetimi için ana tablo:
 ```sql
--- Users
-CREATE INDEX idx_users_username ON users(username);
-CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_users_role ON users(role);
-CREATE INDEX idx_users_active ON users(is_active);
+CREATE TABLE hotel_chains (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    contact_email VARCHAR(255),
+    contact_phone VARCHAR(50),
+    settings JSONB DEFAULT '{}',
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
--- Devices
-CREATE INDEX idx_devices_mac ON devices(mac_address);
-CREATE INDEX idx_devices_status ON devices(status);
-CREATE INDEX idx_devices_type ON devices(device_type);
-CREATE INDEX idx_devices_location ON devices(location);
-CREATE INDEX idx_devices_last_seen ON devices(last_seen);
-
--- Permissions
-CREATE INDEX idx_permissions_user ON user_device_permissions(user_id);
-CREATE INDEX idx_permissions_device ON user_device_permissions(device_id);
-CREATE INDEX idx_permissions_active ON user_device_permissions(is_active);
-CREATE INDEX idx_permissions_expires ON user_device_permissions(valid_until);
-
--- Log Entries
-CREATE INDEX idx_logs_device ON log_entries(device_id);
-CREATE INDEX idx_logs_timestamp ON log_entries(timestamp);
-CREATE INDEX idx_logs_source_ip ON log_entries(source_ip);
-CREATE INDEX idx_logs_level ON log_entries(log_level);
-CREATE INDEX idx_logs_category ON log_entries(category);
-
--- Audit Logs
-CREATE INDEX idx_audit_user ON audit_logs(user_id);
-CREATE INDEX idx_audit_timestamp ON audit_logs(timestamp);
-CREATE INDEX idx_audit_action ON audit_logs(action);
-CREATE INDEX idx_audit_resource ON audit_logs(resource_type, resource_id);
+CREATE INDEX idx_hotel_chains_name ON hotel_chains(name);
+CREATE INDEX idx_hotel_chains_active ON hotel_chains(is_active);
 ```
 
-### Unique Constraints
+### `hotels`
+Her otel için ayrı tenant bilgileri:
 ```sql
--- Unique constraints for data integrity
-ALTER TABLE users ADD CONSTRAINT uk_users_username UNIQUE (username);
-ALTER TABLE users ADD CONSTRAINT uk_users_email UNIQUE (email);
-ALTER TABLE devices ADD CONSTRAINT uk_devices_mac UNIQUE (mac_address);
-ALTER TABLE user_sessions ADD CONSTRAINT uk_sessions_token UNIQUE (session_token);
-ALTER TABLE user_device_permissions ADD CONSTRAINT uk_user_device UNIQUE (user_id, device_id);
+CREATE TABLE hotels (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    chain_id UUID REFERENCES hotel_chains(id),
+    name VARCHAR(255) NOT NULL,
+    code VARCHAR(50) UNIQUE NOT NULL,
+    address TEXT,
+    city VARCHAR(100),
+    country VARCHAR(100),
+    timezone VARCHAR(50) DEFAULT 'Europe/Istanbul',
+    network_config JSONB DEFAULT '{}',
+    subnet_range CIDR,
+    mikrotik_settings JSONB DEFAULT '{}',
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_hotels_chain ON hotels(chain_id);
+CREATE INDEX idx_hotels_code ON hotels(code);
+CREATE INDEX idx_hotels_active ON hotels(is_active);
 ```
 
-## 🚀 Database Performance Considerations
+### `users` (Hotel-Specific)
+Hotel bazlı kullanıcı yönetimi:
+```sql
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    hotel_id UUID REFERENCES hotels(id),
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    role user_role_enum NOT NULL,
+    phone VARCHAR(50),
+    preferences JSONB DEFAULT '{}',
+    last_login TIMESTAMP WITH TIME ZONE,
+    is_active BOOLEAN DEFAULT true,
+    created_by UUID REFERENCES users(id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
-### Connection Pooling
-- **Pool size**: 20 connections
-- **Max overflow**: 30 connections
-- **Pool timeout**: 30 seconds
-- **Connection recycling**: 1 hour
+CREATE TYPE user_role_enum AS ENUM (
+    'chain_admin',    -- Tüm zincire erişim
+    'hotel_manager',  -- Tek oteli yönetir
+    'hotel_viewer',   -- Sadece görüntüler
+    'device_admin',   -- Cihaz yöneticisi
+    'compliance_officer'
+);
+```
 
-### Query Optimization
-- **Prepared statements** for frequent queries
-- **Connection pooling** for concurrent access
-- **Query result caching** with Redis
-- **Batch operations** for bulk inserts
+## 📡 **Mikrotik Device Management**
 
-### Scaling Strategy
-- **Read replicas** for read-heavy workloads
-- **Partitioning** for large tables (log_entries, audit_logs)
-- **Archival strategy** for old data
-- **Backup and recovery** procedures
+### `mikrotik_devices`
+Mikrotik cihazları için özel tablo:
+```sql
+CREATE TABLE mikrotik_devices (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    hotel_id UUID REFERENCES hotels(id) NOT NULL,
+    device_name VARCHAR(255) NOT NULL,
+    mac_address MACADDR UNIQUE NOT NULL,
+    ip_address INET NOT NULL,
+    device_type mikrotik_device_type NOT NULL,
+    routeros_version VARCHAR(50),
+    model VARCHAR(100),
+    serial_number VARCHAR(100),
+    snmp_config JSONB DEFAULT '{}',
+    api_config JSONB DEFAULT '{}',
+    location_description TEXT,
+    status device_status_enum DEFAULT 'active',
+    performance_stats JSONB DEFAULT '{}',
+    last_seen TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
-## 🔒 Security Considerations
+CREATE TYPE mikrotik_device_type AS ENUM (
+    'router',
+    'switch', 
+    'access_point',
+    'firewall',
+    'bridge',
+    'other'
+);
 
-### Data Encryption
-- **At-rest encryption** for sensitive columns
-- **SSL/TLS connections** for all database access
-- **Password hashing** with bcrypt
-- **Token encryption** for session management
+CREATE TYPE device_status_enum AS ENUM (
+    'active',
+    'inactive',
+    'maintenance',
+    'error',
+    'unknown'
+);
 
-### Access Control
-- **Database user roles** with minimal privileges
-- **Application-level security** with ORM
-- **Audit logging** for all database changes
-- **Regular security updates** and patches
+CREATE INDEX idx_mikrotik_hotel ON mikrotik_devices(hotel_id);
+CREATE INDEX idx_mikrotik_mac ON mikrotik_devices(mac_address);
+CREATE INDEX idx_mikrotik_ip ON mikrotik_devices(ip_address);
+CREATE INDEX idx_mikrotik_status ON mikrotik_devices(status);
+```
 
-### Backup Strategy
-- **Daily automated backups**
-- **Point-in-time recovery** capability
-- **Offsite backup storage**
-- **Regular restore testing** 
+### `device_credentials`
+Mikrotik cihaz bağlantı bilgileri (şifreli):
+```sql
+CREATE TABLE device_credentials (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    device_id UUID REFERENCES mikrotik_devices(id) NOT NULL,
+    credential_type VARCHAR(50) NOT NULL, -- 'ssh', 'api', 'snmp'
+    encrypted_username BYTEA,
+    encrypted_password BYTEA,
+    snmp_community VARCHAR(255),
+    snmp_version INTEGER DEFAULT 2,
+    ssh_config JSONB DEFAULT '{}',
+    is_active BOOLEAN DEFAULT true,
+    expires_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_device_credentials_device ON device_credentials(device_id);
+CREATE INDEX idx_device_credentials_type ON device_credentials(credential_type);
+```
+
+## 🔐 **Hotel-Based Permissions**
+
+### `hotel_user_permissions`
+Otel bazlı detaylı izinler:
+```sql
+CREATE TABLE hotel_user_permissions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) NOT NULL,
+    hotel_id UUID REFERENCES hotels(id) NOT NULL,
+    device_permissions JSONB DEFAULT '{}',
+    log_permissions JSONB DEFAULT '{}',
+    export_permissions JSONB DEFAULT '{}',
+    management_permissions JSONB DEFAULT '{}',
+    valid_from TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    valid_until TIMESTAMP WITH TIME ZONE,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Example permission structure:
+-- device_permissions: {"can_add": true, "can_edit": true, "can_delete": false, "allowed_device_types": ["router", "switch"]}
+-- log_permissions: {"can_view": true, "can_export": true, "retention_days": 90}
+-- export_permissions: {"formats": ["json", "csv"], "max_records": 10000}
+-- management_permissions: {"can_manage_users": false, "can_view_stats": true}
+
+CREATE INDEX idx_hotel_permissions_user ON hotel_user_permissions(user_id);
+CREATE INDEX idx_hotel_permissions_hotel ON hotel_user_permissions(hotel_id);
+CREATE UNIQUE INDEX idx_hotel_permissions_unique ON hotel_user_permissions(user_id, hotel_id);
+```
+
+## 📊 **Enhanced Log Management**
+
+### `log_entries` (Hotel-Aware)
+Hotel ve Mikrotik özellikli log tablosu:
+```sql
+CREATE TABLE log_entries (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    device_id UUID REFERENCES mikrotik_devices(id) NOT NULL,
+    hotel_id UUID REFERENCES hotels(id) NOT NULL,
+    message TEXT NOT NULL,
+    raw_message TEXT,
+    log_level log_level_enum NOT NULL,
+    timestamp TIMESTAMP WITH TIME ZONE NOT NULL,
+    source_ip INET,
+    destination_ip INET,
+    source_port INTEGER,
+    destination_port INTEGER,
+    protocol VARCHAR(20),
+    facility VARCHAR(50),
+    severity VARCHAR(50),
+    parsed_data JSONB DEFAULT '{}',
+    category VARCHAR(100),
+    mikrotik_topic VARCHAR(255), -- RouterOS specific topics
+    firewall_data JSONB DEFAULT '{}',
+    is_processed BOOLEAN DEFAULT false,
+    is_indexed BOOLEAN DEFAULT false,
+    log_file_path VARCHAR(500),
+    checksum VARCHAR(64)
+);
+
+-- Mikrotik specific topics examples:
+-- "firewall,info", "dhcp,info", "wireless,info", "system,error", etc.
+
+-- Partitioning by hotel_id and date for performance
+CREATE TABLE log_entries_y2024m01 PARTITION OF log_entries
+    FOR VALUES FROM ('2024-01-01') TO ('2024-02-01');
+
+CREATE INDEX idx_log_entries_hotel_time ON log_entries(hotel_id, timestamp DESC);
+CREATE INDEX idx_log_entries_device_time ON log_entries(device_id, timestamp DESC);
+CREATE INDEX idx_log_entries_mikrotik_topic ON log_entries(mikrotik_topic);
+CREATE INDEX idx_log_entries_category ON log_entries(category);
+```
+
+## 📈 **Monitoring & Alerting**
+
+### `device_monitoring`
+Mikrotik cihaz performans izleme:
+```sql
+CREATE TABLE device_monitoring (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    device_id UUID REFERENCES mikrotik_devices(id) NOT NULL,
+    hotel_id UUID REFERENCES hotels(id) NOT NULL,
+    cpu_stats JSONB DEFAULT '{}',
+    memory_stats JSONB DEFAULT '{}',
+    interface_stats JSONB DEFAULT '{}',
+    uptime_data JSONB DEFAULT '{}',
+    temperature_data JSONB DEFAULT '{}',
+    collected_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Example stats structure:
+-- cpu_stats: {"usage_percent": 15.5, "cores": 4}
+-- memory_stats: {"total_mb": 1024, "used_mb": 256, "free_mb": 768}
+-- interface_stats: {"eth1": {"rx_bytes": 1024000, "tx_bytes": 512000, "errors": 0}}
+
+CREATE INDEX idx_device_monitoring_device_time ON device_monitoring(device_id, collected_at DESC);
+CREATE INDEX idx_device_monitoring_hotel_time ON device_monitoring(hotel_id, collected_at DESC);
+```
+
+### `hotel_alerts`
+Otel bazlı alarm sistemi:
+```sql
+CREATE TABLE hotel_alerts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    hotel_id UUID REFERENCES hotels(id) NOT NULL,
+    device_id UUID REFERENCES mikrotik_devices(id),
+    alert_type VARCHAR(100) NOT NULL,
+    severity alert_severity_enum NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    alert_data JSONB DEFAULT '{}',
+    is_resolved BOOLEAN DEFAULT false,
+    triggered_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    resolved_at TIMESTAMP WITH TIME ZONE,
+    resolved_by UUID REFERENCES users(id)
+);
+
+CREATE TYPE alert_severity_enum AS ENUM (
+    'critical',
+    'high',
+    'medium', 
+    'low',
+    'info'
+);
+
+CREATE INDEX idx_hotel_alerts_hotel_time ON hotel_alerts(hotel_id, triggered_at DESC);
+CREATE INDEX idx_hotel_alerts_device ON hotel_alerts(device_id);
+CREATE INDEX idx_hotel_alerts_severity ON hotel_alerts(severity);
+CREATE INDEX idx_hotel_alerts_resolved ON hotel_alerts(is_resolved);
+```
+
+## 📋 **Hotel Compliance Management**
+
+### `hotel_compliance_records`
+Otel bazlı uyumluluk kayıtları:
+```sql
+CREATE TABLE hotel_compliance_records (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    hotel_id UUID REFERENCES hotels(id) NOT NULL,
+    record_type compliance_record_type NOT NULL,
+    period_start TIMESTAMP WITH TIME ZONE NOT NULL,
+    period_end TIMESTAMP WITH TIME ZONE NOT NULL,
+    compliance_data JSONB DEFAULT '{}',
+    signatures JSONB DEFAULT '{}',
+    status VARCHAR(50) DEFAULT 'pending',
+    generated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    generated_by UUID REFERENCES users(id)
+);
+
+CREATE TYPE compliance_record_type AS ENUM (
+    'daily_summary',
+    'monthly_report',
+    'annual_report',
+    'audit_export',
+    'incident_report'
+);
+
+CREATE INDEX idx_hotel_compliance_hotel_period ON hotel_compliance_records(hotel_id, period_start DESC);
+CREATE INDEX idx_hotel_compliance_type ON hotel_compliance_records(record_type);
+```
+
+## 🔍 **Sample Multi-Tenant Queries**
+
+### Hotel Manager Queries
+```sql
+-- Otel yöneticisi sadece kendi otelinin loglarını görebilir
+SELECT l.*, d.device_name, d.ip_address
+FROM log_entries l
+JOIN mikrotik_devices d ON l.device_id = d.id
+WHERE l.hotel_id = :user_hotel_id
+AND l.timestamp >= NOW() - INTERVAL '24 hours'
+ORDER BY l.timestamp DESC;
+
+-- Otel yöneticisi kendi otelinin cihazlarını yönetebilir
+SELECT * FROM mikrotik_devices 
+WHERE hotel_id = :user_hotel_id
+AND status = 'active';
+```
+
+### Chain Admin Queries
+```sql
+-- Zincir yöneticisi tüm otellerin özetini görebilir
+SELECT 
+    h.name as hotel_name,
+    COUNT(d.id) as device_count,
+    COUNT(l.id) as daily_log_count
+FROM hotels h
+LEFT JOIN mikrotik_devices d ON h.id = d.hotel_id
+LEFT JOIN log_entries l ON h.id = l.hotel_id 
+    AND l.timestamp >= CURRENT_DATE
+WHERE h.chain_id = :chain_id
+GROUP BY h.id, h.name;
+```
+
+This enhanced schema supports **complete multi-tenant hotel management** with **Mikrotik-specific features** while maintaining **data isolation** and **granular permissions**. 
