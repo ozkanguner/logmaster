@@ -5,29 +5,36 @@ Production-ready RSyslog 8.x server in Docker container with TLS support and mon
 ## 🚀 Quick Start
 
 ```bash
-# Option 1: Simple Installation (Recommended)
+# Option 1: Native Installation (En İyi - No Docker)
+sudo chmod +x install-native.sh test-native.sh
+sudo ./install-native.sh
+sudo ./test-native.sh
+
+# Option 2: Docker Simple Installation
 chmod +x install-simple.sh test.sh
 ./install-simple.sh
+./test.sh
 
-# Option 2: Full Installation (May hang on MySQL)
-chmod +x install.sh test.sh  
+# Option 3: Docker Full Installation (May hang on MySQL)
+chmod +x install.sh test.sh
 ./install.sh
-
-# Test everything  
 ./test.sh
 ```
 
-## ⚡ install-simple.sh vs install.sh
+## ⚡ Kurulum Seçenekleri Karşılaştırma
 
-| Feature | install-simple.sh | install.sh |
-|---------|-------------------|------------|
-| **MySQL Support** | ❌ Skipped | ✅ Included |
-| **Installation Time** | ⚡ 2-3 min | 🐌 5-10 min |
-| **Dependencies** | 🔧 Minimal | 📦 Full |
-| **Reliability** | ✅ Stable | ⚠️ May hang |
-| **5651 Compliance** | ✅ Yes | ✅ Yes |
+| Feature | install-native.sh | install-simple.sh | install.sh |
+|---------|-------------------|------------------|------------|
+| **Docker Required** | ❌ No | ✅ Yes | ✅ Yes |
+| **MySQL Support** | ❌ Skipped | ❌ Skipped | ✅ Included |
+| **Installation Time** | ⚡ 1-2 min | ⚡ 2-3 min | 🐌 5-10 min |
+| **Performance** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ |
+| **Resource Usage** | 🔥 Minimal | 📦 Medium | 📦 High |
+| **Reliability** | ✅ Excellent | ✅ Stable | ⚠️ May hang |
+| **System Integration** | ✅ Native | ❌ Container | ❌ Container |
+| **5651 Compliance** | ✅ Yes | ✅ Yes | ✅ Yes |
 
-**Recommendation:** Use `install-simple.sh` for faster, more reliable deployment.
+**💡 Recommendation:** Use `install-native.sh` for best performance and reliability!
 
 ## 📦 What's Included
 
@@ -40,18 +47,33 @@ chmod +x install.sh test.sh
 
 ## 🔧 Management
 
+### Native Installation:
+```bash
+# View logs
+tail -f /var/log/rsyslog/messages
+journalctl -u rsyslog -f
+
+# Service management
+systemctl status rsyslog
+systemctl restart rsyslog
+systemctl stop rsyslog
+
+# Test message
+echo 'test message' | nc -u localhost 514
+```
+
+### Docker Installation:
 ```bash
 # View logs
 docker logs rsyslog-server-1.1
 
-# Stop services
-docker-compose down
-
-# Restart services  
-docker-compose restart
+# Container management
+docker stop rsyslog-server-1.1
+docker start rsyslog-server-1.1
+docker restart rsyslog-server-1.1
 
 # Rebuild from scratch
-docker-compose down && ./install.sh
+./install-simple.sh
 ```
 
 ## 🧪 Testing
