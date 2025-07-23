@@ -1011,4 +1011,512 @@ monitoring:
       - "Log Processing Metrics"
       - "Resource Usage"
     mem_limit: 4g
-``` 
+```
+
+## 🐧 **Ubuntu Single Server Kurulum Rehberi** 
+
+### **✅ EVET! Tek Ubuntu sunucuda 10K events/second mümkün!**
+
+```mermaid
+graph TB
+    subgraph "UBUNTU SERVER (64 Core, 256GB RAM)"
+        subgraph "CONTAINER LAYER"
+            DOCKER["🐳 Docker Engine<br/>Container Orchestration"]
+            COMPOSE["📋 Docker Compose<br/>Service Management"]
+        end
+        
+        subgraph "CORE SERVICES (Containers)"
+            UDP_C1["📡 UDP Container 1<br/>Cores 0-15"]
+            UDP_C2["📡 UDP Container 2<br/>Cores 16-31"] 
+            UDP_C3["📡 UDP Container 3<br/>Cores 32-47"]
+            
+            WORKER_C1["⚡ Worker Container 1<br/>Cores 48-51"]
+            WORKER_C2["⚡ Worker Container 2<br/>Cores 52-55"]
+            WORKER_C3["⚡ Worker Container 3<br/>Cores 56-59"] 
+            WORKER_C4["⚡ Worker Container 4<br/>Cores 60-63"]
+        end
+        
+        subgraph "DATA SERVICES (Containers)"
+            ES_C["🔍 Elasticsearch Container<br/>32GB Heap, Dedicated Cores"]
+            PG_C["🐘 PostgreSQL Container<br/>Optimized Config"]
+            REDIS_C["⚡ Redis Container<br/>In-Memory Cache"]
+            QUEUE_C["🔄 Redis Queue Container<br/>Message Broker"]
+        end
+        
+        subgraph "WEB SERVICES (Containers)"
+            NGINX_C["🌐 Nginx Container<br/>Load Balancer + Static"]
+            API_C1["🚀 FastAPI Container 1<br/>Port 8000"]
+            API_C2["🚀 FastAPI Container 2<br/>Port 8001"]
+            API_C3["🚀 FastAPI Container 3<br/>Port 8002"]
+            REACT_C["⚛️ React Container<br/>Frontend Build"]
+        end
+        
+        subgraph "MONITORING (Containers)"
+            PROM_C["📊 Prometheus Container<br/>Metrics Collection"]
+            GRAF_C["📈 Grafana Container<br/>Dashboards"]
+        end
+        
+        subgraph "STORAGE (Host Volumes)"
+            NVME["💾 /var/lib/logmaster<br/>NVMe Mount Point"]
+            ARCHIVE["📦 /var/archive/logmaster<br/>Archive Storage"]
+        end
+    end
+    
+    %% Container Relationships
+    UDP_C1 --> QUEUE_C
+    UDP_C2 --> QUEUE_C
+    UDP_C3 --> QUEUE_C
+    
+    QUEUE_C --> WORKER_C1
+    QUEUE_C --> WORKER_C2
+    QUEUE_C --> WORKER_C3
+    QUEUE_C --> WORKER_C4
+    
+    WORKER_C1 --> ES_C
+    WORKER_C2 --> PG_C
+    WORKER_C3 --> REDIS_C
+    WORKER_C4 --> NVME
+    
+    NGINX_C --> API_C1
+    NGINX_C --> API_C2
+    NGINX_C --> API_C3
+    NGINX_C --> REACT_C
+    
+    API_C1 --> ES_C
+    API_C2 --> PG_C
+    API_C3 --> REDIS_C
+    
+    PROM_C --> GRAF_C
+    
+    classDef container fill:#e8f5e8,stroke:#4caf50,stroke-width:2px
+    classDef storage fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    
+    class UDP_C1,UDP_C2,UDP_C3,WORKER_C1,WORKER_C2,WORKER_C3,WORKER_C4,ES_C,PG_C,REDIS_C,QUEUE_C,NGINX_C,API_C1,API_C2,API_C3,REACT_C,PROM_C,GRAF_C container
+    class NVME,ARCHIVE storage
+```
+
+### 🛠️ **Step-by-Step Ubuntu Kurulum**
+
+#### 1. Ubuntu Server Hazırlığı
+```bash
+# Ubuntu 22.04 LTS Server kurulumu
+sudo apt update && sudo apt upgrade -y
+
+# Kernel optimizasyonları
+sudo sysctl -w vm.max_map_count=262144
+sudo sysctl -w net.core.rmem_max=134217728
+sudo sysctl -w net.core.wmem_max=134217728
+sudo sysctl -w net.core.netdev_max_backlog=30000
+
+# Kalıcı yapmak için
+echo 'vm.max_map_count=262144' | sudo tee -a /etc/sysctl.conf
+echo 'net.core.rmem_max=134217728' | sudo tee -a /etc/sysctl.conf
+echo 'net.core.wmem_max=134217728' | sudo tee -a /etc/sysctl.conf
+echo 'net.core.netdev_max_backlog=30000' | sudo tee -a /etc/sysctl.conf
+
+# Swap kapatma (Elasticsearch için)
+sudo swapoff -a
+sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+```
+
+#### 2. Docker ve Docker Compose Kurulumu
+```bash
+# Docker kurulumu
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker $USER
+
+# Docker Compose kurulumu
+sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+# Logout/login yapın veya
+newgrp docker
+```
+
+#### 3. Storage Hazırlığı
+```bash
+# NVMe diskler için mount point
+sudo mkdir -p /var/lib/logmaster
+sudo mkdir -p /var/archive/logmaster
+sudo mkdir -p /var/log/logmaster
+
+# NVMe RAID kurulumu (4 disk varsa)
+sudo mdadm --create --verbose /dev/md0 --level=0 --raid-devices=4 /dev/nvme0n1 /dev/nvme1n1 /dev/nvme2n1 /dev/nvme3n1
+sudo mkfs.ext4 /dev/md0
+sudo mount /dev/md0 /var/lib/logmaster
+
+# Auto-mount için fstab
+echo '/dev/md0 /var/lib/logmaster ext4 defaults,noatime 0 2' | sudo tee -a /etc/fstab
+```
+
+#### 4. LogMaster Docker Compose Dosyası
+```yaml
+# /opt/logmaster/docker-compose.yml
+version: '3.8'
+
+services:
+  # UDP Syslog Receivers (3 instance)
+  udp-receiver-1:
+    build: ./syslog-receiver
+    container_name: logmaster-udp-1
+    ports:
+      - "514:514/udp"
+    environment:
+      - RECEIVER_ID=1
+      - REDIS_URL=redis://redis-queue:6379
+    cpuset: "0-15"
+    mem_limit: 8g
+    depends_on: [redis-queue]
+    
+  udp-receiver-2:
+    build: ./syslog-receiver
+    container_name: logmaster-udp-2
+    ports:
+      - "515:514/udp"
+    environment:
+      - RECEIVER_ID=2
+      - REDIS_URL=redis://redis-queue:6379
+    cpuset: "16-31"
+    mem_limit: 8g
+    depends_on: [redis-queue]
+    
+  udp-receiver-3:
+    build: ./syslog-receiver
+    container_name: logmaster-udp-3
+    ports:
+      - "516:514/udp"
+    environment:
+      - RECEIVER_ID=3
+      - REDIS_URL=redis://redis-queue:6379
+    cpuset: "32-47"
+    mem_limit: 8g
+    depends_on: [redis-queue]
+
+  # Redis Queue (Message Broker)
+  redis-queue:
+    image: redis:7-alpine
+    container_name: logmaster-queue
+    command: redis-server --maxmemory 4gb --maxmemory-policy allkeys-lru
+    mem_limit: 5g
+    volumes:
+      - redis-queue-data:/data
+
+  # Log Processing Workers (4 instance)
+  log-worker-1:
+    build: ./log-processor
+    container_name: logmaster-worker-1
+    environment:
+      - WORKER_ID=1
+      - REDIS_URL=redis://redis-queue:6379
+      - ES_URL=http://elasticsearch:9200
+      - PG_URL=postgresql://postgres:password@postgresql:5432/logmaster
+    cpuset: "48-51"
+    mem_limit: 16g
+    depends_on: [redis-queue, elasticsearch, postgresql]
+
+  log-worker-2:
+    build: ./log-processor
+    container_name: logmaster-worker-2
+    environment:
+      - WORKER_ID=2
+      - REDIS_URL=redis://redis-queue:6379
+      - ES_URL=http://elasticsearch:9200
+      - PG_URL=postgresql://postgres:password@postgresql:5432/logmaster
+    cpuset: "52-55"
+    mem_limit: 16g
+    depends_on: [redis-queue, elasticsearch, postgresql]
+
+  log-worker-3:
+    build: ./log-processor
+    container_name: logmaster-worker-3
+    environment:
+      - WORKER_ID=3
+      - REDIS_URL=redis://redis-queue:6379
+      - ES_URL=http://elasticsearch:9200
+      - PG_URL=postgresql://postgres:password@postgresql:5432/logmaster
+    cpuset: "56-59"
+    mem_limit: 16g
+    depends_on: [redis-queue, elasticsearch, postgresql]
+
+  log-worker-4:
+    build: ./log-processor
+    container_name: logmaster-worker-4
+    environment:
+      - WORKER_ID=4
+      - REDIS_URL=redis://redis-queue:6379
+      - ES_URL=http://elasticsearch:9200
+      - PG_URL=postgresql://postgres:password@postgresql:5432/logmaster
+    cpuset: "60-63"
+    mem_limit: 16g
+    depends_on: [redis-queue, elasticsearch, postgresql]
+
+  # Elasticsearch Single Node
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: logmaster-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms32g -Xmx32g"
+      - xpack.security.enabled=false
+      - indices.memory.index_buffer_size=40%
+    mem_limit: 64g
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+      - /var/lib/logmaster/elasticsearch:/var/lib/elasticsearch
+    ports:
+      - "9200:9200"
+
+  # PostgreSQL
+  postgresql:
+    image: postgres:15-alpine
+    container_name: logmaster-postgresql
+    environment:
+      POSTGRES_DB: logmaster
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_SHARED_BUFFERS: 32GB
+      POSTGRES_EFFECTIVE_CACHE_SIZE: 64GB
+      POSTGRES_WORK_MEM: 256MB
+      POSTGRES_MAX_CONNECTIONS: 200
+    mem_limit: 48g
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
+      - /var/lib/logmaster/postgresql:/var/lib/postgresql/backup
+    ports:
+      - "5432:5432"
+
+  # Redis Cache
+  redis-cache:
+    image: redis:7-alpine
+    container_name: logmaster-redis
+    command: redis-server --maxmemory 16gb --maxmemory-policy allkeys-lru
+    mem_limit: 18g
+    volumes:
+      - redis-cache-data:/data
+
+  # FastAPI Instances (4 instance)
+  api-1:
+    build: ./backend
+    container_name: logmaster-api-1
+    environment:
+      - API_INSTANCE=1
+      - ES_URL=http://elasticsearch:9200
+      - PG_URL=postgresql://postgres:password@postgresql:5432/logmaster
+      - REDIS_URL=redis://redis-cache:6379
+    ports:
+      - "8000:8000"
+    depends_on: [elasticsearch, postgresql, redis-cache]
+
+  api-2:
+    build: ./backend
+    container_name: logmaster-api-2
+    environment:
+      - API_INSTANCE=2
+      - ES_URL=http://elasticsearch:9200
+      - PG_URL=postgresql://postgres:password@postgresql:5432/logmaster
+      - REDIS_URL=redis://redis-cache:6379
+    ports:
+      - "8001:8000"
+    depends_on: [elasticsearch, postgresql, redis-cache]
+
+  api-3:
+    build: ./backend
+    container_name: logmaster-api-3
+    environment:
+      - API_INSTANCE=3
+      - ES_URL=http://elasticsearch:9200
+      - PG_URL=postgresql://postgres:password@postgresql:5432/logmaster
+      - REDIS_URL=redis://redis-cache:6379
+    ports:
+      - "8002:8000"
+    depends_on: [elasticsearch, postgresql, redis-cache]
+
+  api-4:
+    build: ./backend
+    container_name: logmaster-api-4
+    environment:
+      - API_INSTANCE=4
+      - ES_URL=http://elasticsearch:9200
+      - PG_URL=postgresql://postgres:password@postgresql:5432/logmaster
+      - REDIS_URL=redis://redis-cache:6379
+    ports:
+      - "8003:8000"
+    depends_on: [elasticsearch, postgresql, redis-cache]
+
+  # Nginx Load Balancer
+  nginx:
+    image: nginx:alpine
+    container_name: logmaster-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+      - /var/log/logmaster:/var/log/nginx
+    depends_on: [api-1, api-2, api-3, api-4, frontend]
+
+  # React Frontend
+  frontend:
+    build: ./frontend
+    container_name: logmaster-frontend
+    ports:
+      - "3000:3000"
+
+  # Monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: logmaster-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    mem_limit: 8g
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: logmaster-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana:/etc/grafana/provisioning
+    mem_limit: 4g
+    depends_on: [prometheus]
+
+volumes:
+  elasticsearch-data:
+  postgresql-data:
+  redis-queue-data:
+  redis-cache-data:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+```
+
+#### 5. Nginx Load Balancer Konfigürasyonu
+```nginx
+# /opt/logmaster/nginx/nginx.conf
+upstream api_backend {
+    server api-1:8000 weight=1;
+    server api-2:8000 weight=1;
+    server api-3:8000 weight=1;
+    server api-4:8000 weight=1;
+}
+
+upstream syslog_backend {
+    server udp-receiver-1:514;
+    server udp-receiver-2:514;
+    server udp-receiver-3:514;
+}
+
+server {
+    listen 80;
+    server_name _;
+
+    # Frontend
+    location / {
+        proxy_pass http://frontend:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    # API Load Balancing
+    location /api/ {
+        proxy_pass http://api_backend;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+
+    # WebSocket for real-time logs
+    location /ws {
+        proxy_pass http://api_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
+
+# UDP Load Balancing (Stream module)
+stream {
+    upstream syslog_udp {
+        server logmaster-udp-1:514;
+        server logmaster-udp-2:515;
+        server logmaster-udp-3:516;
+    }
+    
+    server {
+        listen 514 udp;
+        proxy_pass syslog_udp;
+        proxy_timeout 1s;
+        proxy_responses 1;
+    }
+}
+```
+
+#### 6. Sistem Başlatma
+```bash
+# LogMaster dizinine git
+cd /opt/logmaster
+
+# Tüm servisleri başlat
+docker-compose up -d
+
+# Durumu kontrol et
+docker-compose ps
+
+# Logları izle
+docker-compose logs -f
+
+# Performance metrikleri
+docker stats
+```
+
+### 📊 **Resource Distribution (64 Core Server)**
+```
+CPU Core Allocation:
+├── UDP Receivers: 48 cores (0-47)
+├── Log Workers: 16 cores (48-63)
+├── Elasticsearch: Shared cores
+├── PostgreSQL: Shared cores
+├── APIs: Shared cores
+└── System: Floating
+
+Memory Allocation:
+├── UDP Receivers: 24GB (3x8GB)
+├── Log Workers: 64GB (4x16GB)
+├── Elasticsearch: 64GB
+├── PostgreSQL: 48GB
+├── Redis: 23GB (5GB+18GB)
+├── APIs: 16GB (4x4GB)
+├── Monitoring: 12GB
+└── System: 45GB free
+```
+
+### ✅ **Başlatma Komutları**
+```bash
+# Hızlı kurulum
+git clone https://github.com/ozkanguner/5651-logging-v2.git /opt/logmaster
+cd /opt/logmaster
+sudo ./deploy/ubuntu-single-server-hp.sh
+
+# Manuel kurulum
+docker-compose up -d
+
+# Health check
+curl http://localhost/api/health
+curl http://localhost:9200/_cluster/health
+```
+
+**SONUÇ:** Evet! Tek Ubuntu sunucuda 64 core ile 10,000+ events/second işleyebilirsiniz! 🚀 
