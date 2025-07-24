@@ -88,6 +88,41 @@ tail -f /var/log/rsyslog/messages | grep -i hotspot
 - ✅ Top log sources
 - ✅ Disk usage alerts
 
+## 🏨 Multi-Tenant Configuration
+
+```bash
+# Setup multi-tenant log separation by hotel
+sudo chmod +x configure-multitenant.sh
+sudo ./configure-multitenant.sh
+
+# Multi-tenant monitoring dashboard
+chmod +x monitor-multitenant.sh
+./monitor-multitenant.sh
+
+# Auto-refresh multi-tenant monitoring
+watch -n 30 ./monitor-multitenant.sh
+```
+
+### Multi-Tenant Features:
+- 🏨 **Hotel-based log separation** (SISLI_HOTSPOT, FOURSIDES_HOTEL, etc.)
+- 📅 **Daily log rotation** (YYYY-MM-DD.log format)
+- 📊 **Per-hotel monitoring** and statistics
+- 🔍 **Unknown source detection** and isolation
+- 📈 **Hotel activity comparison** and ranking
+
+### Log Structure:
+```
+/var/log/rsyslog/
+├── SISLI_HOTSPOT/
+│   ├── 2025-01-24.log
+│   └── 2025-01-25.log
+├── FOURSIDES_HOTEL/
+│   ├── 2025-01-24.log
+│   └── 2025-01-25.log
+├── ATIRO_HOTEL/
+└── unknown/          # Unidentified sources
+```
+
 ### Docker Installation:
 ```bash
 # View logs
