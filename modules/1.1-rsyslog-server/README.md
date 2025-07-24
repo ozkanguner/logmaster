@@ -62,6 +62,32 @@ systemctl stop rsyslog
 echo 'test message' | nc -u localhost 514
 ```
 
+## 📊 Monitoring
+
+```bash
+# Quick monitoring dashboard
+chmod +x monitor.sh
+./monitor.sh
+
+# Auto-refresh monitoring (updates every 10 seconds)
+watch -n 10 ./monitor.sh
+
+# Live log stream
+tail -f /var/log/rsyslog/messages
+
+# Only hotspot logs
+tail -f /var/log/rsyslog/messages | grep -i hotspot
+```
+
+### Monitoring Features:
+- ✅ Service health check
+- ✅ Port status (UDP/TCP 514)
+- ✅ Log file size and activity
+- ✅ Recent message count (5 min)
+- ✅ Mikrotik hotspot activity
+- ✅ Top log sources
+- ✅ Disk usage alerts
+
 ### Docker Installation:
 ```bash
 # View logs
