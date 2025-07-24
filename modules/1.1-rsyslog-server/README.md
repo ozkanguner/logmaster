@@ -90,38 +90,62 @@ tail -f /var/log/rsyslog/messages | grep -i hotspot
 
 ## 🏨 Multi-Tenant Configuration
 
+### Static Multi-Tenant (Pre-defined hotels):
 ```bash
 # Setup multi-tenant log separation by hotel
 sudo chmod +x configure-multitenant.sh
 sudo ./configure-multitenant.sh
+```
 
+### Dynamic Multi-Tenant (Auto-detect new hotels):
+```bash
+# Setup dynamic multi-tenant (RECOMMENDED)
+sudo chmod +x configure-dynamic-multitenant.sh
+sudo ./configure-dynamic-multitenant.sh
+```
+
+### Monitoring:
+```bash
 # Multi-tenant monitoring dashboard
 chmod +x monitor-multitenant.sh
 ./monitor-multitenant.sh
 
 # Auto-refresh multi-tenant monitoring
 watch -n 30 ./monitor-multitenant.sh
+
+# Monitor auto-creation log
+tail -f /var/log/hotel-monitor.log
 ```
 
 ### Multi-Tenant Features:
 - 🏨 **Hotel-based log separation** (SISLI_HOTSPOT, FOURSIDES_HOTEL, etc.)
+- 🤖 **Dynamic hotel detection** - New hotels auto-create directories
 - 📅 **Daily log rotation** (YYYY-MM-DD.log format)
 - 📊 **Per-hotel monitoring** and statistics
 - 🔍 **Unknown source detection** and isolation
 - 📈 **Hotel activity comparison** and ranking
+- ⚡ **Real-time directory creation** from log patterns
 
 ### Log Structure:
 ```
 /var/log/rsyslog/
-├── SISLI_HOTSPOT/
+├── SISLI_HOTSPOT/          # Auto-created
 │   ├── 2025-01-24.log
 │   └── 2025-01-25.log
-├── FOURSIDES_HOTEL/
+├── FOURSIDES_HOTEL/        # Auto-created
 │   ├── 2025-01-24.log
 │   └── 2025-01-25.log
-├── ATIRO_HOTEL/
-└── unknown/          # Unidentified sources
+├── ATIRO_HOTEL/            # Auto-created
+├── NEW_HOTEL_2025/         # Dynamically created!
+│   └── 2025-01-24.log
+└── unknown/                # Unidentified sources
+    └── 2025-01-24.log
 ```
+
+**Dynamic Features:**
+- ✅ New hotel names automatically detected from logs
+- ✅ Directories created in real-time
+- ✅ Supports patterns: `srcname: in:HOTEL_NAME` or `HOTEL_NAME`
 
 ### Docker Installation:
 ```bash
