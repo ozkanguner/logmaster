@@ -104,17 +104,30 @@ sudo chmod +x configure-dynamic-multitenant.sh
 sudo ./configure-dynamic-multitenant.sh
 ```
 
+### Nested Multi-Tenant (Zone/Hotel structure):
+```bash
+# Setup nested structure (ADVANCED - Based on real Mikrotik logs)
+sudo chmod +x configure-nested-multitenant.sh
+sudo ./configure-nested-multitenant.sh
+```
+
 ### Monitoring:
 ```bash
 # Multi-tenant monitoring dashboard
 chmod +x monitor-multitenant.sh
 ./monitor-multitenant.sh
 
-# Auto-refresh multi-tenant monitoring
-watch -n 30 ./monitor-multitenant.sh
+# Nested monitoring dashboard (Zone/Hotel)
+chmod +x monitor-nested-multitenant.sh
+./monitor-nested-multitenant.sh
 
-# Monitor auto-creation log
-tail -f /var/log/hotel-monitor.log
+# Auto-refresh monitoring
+watch -n 30 ./monitor-multitenant.sh         # Standard
+watch -n 30 ./monitor-nested-multitenant.sh  # Nested
+
+# Monitor auto-creation logs
+tail -f /var/log/hotel-monitor.log     # Standard
+tail -f /var/log/nested-monitor.log    # Nested
 ```
 
 ### Multi-Tenant Features:
@@ -126,7 +139,9 @@ tail -f /var/log/hotel-monitor.log
 - 📈 **Hotel activity comparison** and ranking
 - ⚡ **Real-time directory creation** from log patterns
 
-### Log Structure:
+### Log Structure Options:
+
+#### Standard Multi-Tenant:
 ```
 /var/log/rsyslog/
 ├── SISLI_HOTSPOT/          # Auto-created
@@ -135,17 +150,36 @@ tail -f /var/log/hotel-monitor.log
 ├── FOURSIDES_HOTEL/        # Auto-created
 │   ├── 2025-01-24.log
 │   └── 2025-01-25.log
-├── ATIRO_HOTEL/            # Auto-created
-├── NEW_HOTEL_2025/         # Dynamically created!
-│   └── 2025-01-24.log
 └── unknown/                # Unidentified sources
+    └── 2025-01-24.log
+```
+
+#### Nested Multi-Tenant (Zone/Hotel):
+```
+/var/log/rsyslog/
+├── SISLI_HOTSPOT/              # Zone (Bölge)
+│   ├── 38_HOTEL/               # Hotel (Otel)
+│   │   └── 2025-01-24.log
+│   ├── ADELMAR_HOTEL/          # Hotel (Otel)
+│   │   └── 2025-01-24.log
+│   ├── FOURSIDES_HOTEL/        # Hotel (Otel)
+│   │   └── 2025-01-24.log
+│   ├── ATRO_HOTEL/             # Hotel (Otel)
+│   │   └── 2025-01-24.log
+│   ├── dhcp/                   # DHCP logs
+│   │   └── 2025-01-24.log
+│   └── system/                 # Other system logs
+│       └── 2025-01-24.log
+└── unknown/unknown/            # Unidentified sources
     └── 2025-01-24.log
 ```
 
 **Dynamic Features:**
 - ✅ New hotel names automatically detected from logs
-- ✅ Directories created in real-time
-- ✅ Supports patterns: `srcname: in:HOTEL_NAME` or `HOTEL_NAME`
+- ✅ Directories created in real-time (Zone/Hotel structure)
+- ✅ Supports patterns: `srcnat: in:HOTEL_NAME` or `HOTEL_NAME`
+- ✅ Zone extraction from timestamp area
+- ✅ Perfect match for Mikrotik log format
 
 ### Docker Installation:
 ```bash
