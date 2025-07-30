@@ -55,10 +55,7 @@ apt install -y \
     tcpdump \
     rsyslog \
     logrotate \
-    postgresql-14 \
-    redis-server \
     nginx \
-    prometheus \
     nodejs \
     npm
 
@@ -77,30 +74,11 @@ else
     log "Go already installed: $(go version)"
 fi
 
-# Step 4: Install Grafana
-log "📊 Installing Grafana..."
-if ! command -v grafana-server &> /dev/null; then
-    wget -q -O - https://packages.grafana.com/gpg.key | apt-key add -
-    echo "deb https://packages.grafana.com/oss/deb stable main" | tee /etc/apt/sources.list.d/grafana.list
-    apt update
-    apt install -y grafana
-else
-    log "Grafana already installed"
-fi
+# Step 4: Skip Grafana - Simple file-based system
+log "📁 Simple file-based system - No Grafana needed"
 
-# Step 5: Install Elasticsearch
-log "🔍 Installing Elasticsearch..."
-if ! command -v elasticsearch &> /dev/null; then
-    wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -
-    echo "deb https://artifacts.elastic.co/packages/8.x/apt stable main" | tee /etc/apt/sources.list.d/elastic-8.x.list
-    apt update
-    apt install -y elasticsearch
-    
-    # Configure Elasticsearch for LogMaster
-    systemctl enable elasticsearch
-else
-    log "Elasticsearch already installed"
-fi
+# Step 5: Skip Elasticsearch - File-based log storage
+log "📁 File-based log storage - No Elasticsearch needed"
 
 # Step 6: Create LogMaster user and directories
 log "👤 Creating LogMaster user and directories..."
@@ -272,9 +250,7 @@ EOF
 log "🔥 Configuring firewall..."
 ufw allow 514/udp comment "RSyslog"
 ufw allow 3000/tcp comment "LogMaster Dashboard"
-ufw allow 3001/tcp comment "Grafana"
 ufw allow 8080/tcp comment "LogMaster API"
-ufw allow 9090/tcp comment "Prometheus"
 
 # Step 13: Enable and start services
 log "🚀 Starting services..."
@@ -282,20 +258,10 @@ systemctl daemon-reload
 
 # Enable services
 systemctl enable rsyslog
-systemctl enable postgresql
-systemctl enable redis-server
-systemctl enable elasticsearch
-systemctl enable grafana-server
-systemctl enable prometheus
 systemctl enable logmaster-api
 
 # Start services
 systemctl restart rsyslog
-systemctl start postgresql
-systemctl start redis-server
-systemctl start elasticsearch
-systemctl start grafana-server
-systemctl start prometheus
 systemctl start logmaster-api
 
 # Step 14: Wait for services to start
@@ -324,7 +290,7 @@ fi
 log "🔍 Verifying installation..."
 
 # Check service status
-services=("rsyslog" "postgresql" "redis-server" "grafana-server" "prometheus" "logmaster-api")
+services=("rsyslog" "logmaster-api")
 for service in "${services[@]}"; do
     if systemctl is-active --quiet "$service"; then
         log "✅ $service is running"
@@ -335,7 +301,7 @@ done
 
 # Check ports
 log "🔍 Checking ports..."
-ss -tlnp | grep -E ":514|:3000|:3001|:8080|:9090|:9200" || true
+ss -tlnp | grep -E ":514|:3000|:8080" || true
 
 # Step 17: Test auto-discovery
 log "🧪 Testing auto-discovery..."
@@ -354,9 +320,7 @@ log "🎉 LogMaster installation completed successfully!"
 echo
 echo -e "${GREEN}========================= INSTALLATION SUMMARY =========================${NC}"
 echo -e "${BLUE}LogMaster Dashboard:${NC}     http://$(hostname -I | awk '{print $1}'):3000"
-echo -e "${BLUE}Grafana Monitoring:${NC}      http://$(hostname -I | awk '{print $1}'):3001 (admin/admin123)"
 echo -e "${BLUE}LogMaster API:${NC}           http://$(hostname -I | awk '{print $1}'):8080"
-echo -e "${BLUE}Prometheus:${NC}              http://$(hostname -I | awk '{print $1}'):9090"
 echo
 echo -e "${GREEN}Next Steps:${NC}"
 echo -e "1. Configure your Mikrotik devices to send logs to this server"

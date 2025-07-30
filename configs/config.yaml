@@ -20,36 +20,13 @@ logging:
   max_age: 365  # days
   compress: true
 
-# Database Configurations
-databases:
-  postgresql:
-    host: "localhost"
-    port: 5432
-    database: "logmaster"
-    username: "logmaster"
-    password: "logmaster_password"
-    sslmode: "disable"
-    max_open_conns: 25
-    max_idle_conns: 5
-    conn_max_lifetime: 300s
-
-  redis:
-    host: "localhost"
-    port: 6379
-    password: ""
-    database: 0
-    max_retries: 3
-    pool_size: 10
-    min_idle_conns: 5
-
-  elasticsearch:
-    hosts:
-      - "http://localhost:9200"
-    username: ""
-    password: ""
-    index_prefix: "logmaster"
-    max_retries: 3
-    timeout: 30s
+# File-based Storage (No external databases needed)
+storage:
+  type: "file"
+  base_path: "/var/log/logmaster"
+  auto_create_dirs: true
+  file_format: "json"
+  compression: false
 
 # RSyslog Integration
 rsyslog:
@@ -107,17 +84,9 @@ security:
     jwt_secret: "change-in-production"
     token_expiry: 24h
 
-# Monitoring & Metrics
+# Simple Health Monitoring
 monitoring:
   enabled: true
-  prometheus:
-    enabled: true
-    port: 9090
-    path: "/metrics"
-  grafana:
-    enabled: true
-    port: 3001
-    admin_password: "admin123"
   health_check:
     enabled: true
     path: "/health"

@@ -20,11 +20,11 @@
 - **Minimal CPU**: 90% reduction in CPU usage vs complex regex parsing
 - **JSON Structured**: Native structured logging support
 
-### 🏗️ Modern Architecture
+### 🏗️ Simple Architecture
 - **RSyslog 8.x**: Native Ubuntu log collection
-- **Go Backend**: REST API and microservices
+- **Go Backend**: REST API with file-based processing
 - **React Dashboard**: Modern web interface
-- **Grafana Integration**: Real-time monitoring and alerting
+- **File Storage**: Direct filesystem storage, no databases
 - **Native Deployment**: No containers, systemd-based management
 
 ## 🛠️ Technology Stack
@@ -32,10 +32,9 @@
 | Component | Technology | Purpose |
 |-----------|------------|---------|
 | **Log Collection** | RSyslog 8.x | UDP 514 syslog receiver |
-| **Backend API** | Go 1.18+ | REST API, log processing |
+| **Backend API** | Go 1.18+ | REST API, file-based log processing |
 | **Frontend** | React + JavaScript | Web dashboard |
-| **Monitoring** | Grafana + Prometheus | System monitoring |
-| **Databases** | PostgreSQL, Redis, Elasticsearch | Metadata, cache, search |
+| **Storage** | File System | Direct file-based log storage |
 | **OS** | Ubuntu 22.04 LTS | Production deployment |
 
 ## 🚀 Quick Start
@@ -71,7 +70,6 @@ sudo ./scripts/install.sh
 
 4. **Access the dashboard**
 - **LogMaster Dashboard**: `http://your-server:3000`
-- **Grafana Monitoring**: `http://your-server:3001` (admin/admin123)
 
 ## 📁 Auto-Generated Log Structure
 
@@ -111,18 +109,14 @@ logging:
   format: "json"
 ```
 
-## 📊 Monitoring
+## 📊 Performance
 
 ### System Performance
 - **CPU Usage**: <5% @ 50K EPS
 - **Memory Usage**: <100MB footprint
 - **Disk I/O**: Sequential write optimization
 - **Network**: UDP 514 minimal overhead
-
-### Grafana Dashboards
-- **LogMaster System Overview**: Real-time metrics
-- **Log Volume Analytics**: Interface-based statistics
-- **Performance Monitoring**: Throughput and latency
+- **Storage**: Direct file system, no database overhead
 
 ## 🏢 Interface Types
 

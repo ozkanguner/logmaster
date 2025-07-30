@@ -5,9 +5,6 @@ go 1.18
 require (
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.9.1
-	github.com/lib/pq v1.10.9
-	github.com/go-redis/redis/v8 v8.11.5
-	github.com/elastic/go-elasticsearch/v8 v8.8.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
