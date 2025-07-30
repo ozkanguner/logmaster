@@ -1,57 +1,30 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
 *.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
+*.dylib
 
-# Virtual Environment
-venv/
-env/
-ENV/
-.env
-.env.local
-.env.production
-.env.staging
+# Test binary, built with `go test -c`
+*.test
 
-# IDE
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories (remove the comment below to include it)
+vendor/
+
+# Go workspace file
+go.work
+
+# IDE files
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# Database
-*.db
-*.sqlite3
-
-# Logs
-logs/
-*.log
-/var/log/
-/tmp/logs/
-
-# Docker
-docker-compose.override.yml
-.dockerignore
-
-# OS
+# OS generated files
 .DS_Store
 .DS_Store?
 ._*
@@ -60,73 +33,57 @@ docker-compose.override.yml
 ehthumbs.db
 Thumbs.db
 
-# Certificates and Keys
-*.key
-*.pem
-*.crt
-*.p12
-*.pfx
-certs/
-keys/
+# Log files
+*.log
+logs/
+/var/log/logmaster/
+
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# React build output
+/frontend/*/build/
+/frontend/*/dist/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Config files with sensitive data
+config.local.yaml
+*.local.conf
 
 # Temporary files
 tmp/
 temp/
 *.tmp
-*.temp
 
-# Node.js (for frontend)
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.npm
-.yarn
+# Compiled Go binaries
+/cmd/*/logmaster-*
+/bin/
 
-# Production builds
-build/
-dist/
+# Database files
+*.db
+*.sqlite
+*.sqlite3
 
-# Coverage reports
-htmlcov/
-.coverage
-.coverage.*
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
+# SSL certificates
+*.pem
+*.key
+*.crt
+*.csr
 
 # Backup files
-*.bak
 *.backup
-*.old
+*.bak
+*~
 
-# Configuration files with secrets
-config/secrets.yaml
-config/production.yaml
-deployment/config/.env
-
-# Elasticsearch data
-data/elasticsearch/
-
-# PostgreSQL data
-data/postgresql/
-
-# Redis data
-data/redis/
-
-# Grafana data
-data/grafana/
-
-# Log files
-*.log.*
-*.gz
-*.zip
-
-# Monitoring data
-prometheus/
-grafana/provisioning/
-
-# Local development
-.local/
-.cache/ 
+# Production deployment files
+deployment/secrets/
+k8s/secrets/

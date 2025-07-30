@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogMaster Auto-Discovery - Otomatik Cihaz Algılama Sistemi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 60px 20px;
+            margin-bottom: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.3em;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .section {
+            background: white;
+            margin: 30px 0;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border-left: 5px solid #667eea;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 15px;
+        }
+
+        .auto-card {
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid;
+            margin: 20px 0;
+        }
+
+        .auto-card.discovery { border-left-color: #e74c3c; background: rgba(231,76,60,0.1); }
+        .auto-card.organization { border-left-color: #27ae60; background: rgba(39,174,96,0.1); }
+        .auto-card.zero-config { border-left-color: #3498db; background: rgba(52,152,219,0.1); }
+
+        .flow-diagram {
+            background: rgba(0,0,0,0.05);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .flow-step {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 10px;
+            display: inline-block;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            min-width: 200px;
+        }
+
+        .command-box {
+            background: rgba(0,0,0,0.9);
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .feature-item {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .highlight-box {
+            background: rgba(39,174,96,0.2);
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid #27ae60;
+            margin: 20px 0;
+        }
+
+        .warning-box {
+            background: rgba(231,76,60,0.2);
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid #e74c3c;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🤖 LogMaster Auto-Discovery</h1>
+            <p>Otomatik Cihaz Algılama ve Klasör Oluşturma Sistemi | Zero Manual Configuration</p>
+            
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <h3>🔍 Auto Discovery</h3>
+                    <p>Otomatik IP algılama</p>
+                </div>
+                <div class="feature-item">
+                    <h3>📁 Auto Organization</h3>
+                    <p>Otomatik klasör oluşturma</p>
+                </div>
+                <div class="feature-item">
+                    <h3>🏢 Interface Detection</h3>
+                    <p>Akıllı kategori ayrımı</p>
+                </div>
+                <div class="feature-item">
+                    <h3>⚡ Plug & Play</h3>
+                    <p>Sıfır manuel konfigürasyon</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Auto Discovery Principle -->
+        <div class="section">
+            <h2>🔍 Otomatik Algılama Prensibi</h2>
+            
+            <div class="auto-card discovery">
+                <h3 style="color: #e74c3c;">🤖 Zero Configuration Approach</h3>
+                <div class="highlight-box">
+                    <strong>📋 Ana Prensip:</strong> Hiçbir manuel klasör oluşturma, IP listesi tanımlama veya cihaz kaydı yapmayacağız!<br>
+                    <strong>🎯 Hedef:</strong> Yeni cihaz bağlandığında otomatik olarak algılanıp organize edilecek.
+                </div>
+                <ul>
+                    <li><strong>✅ Otomatik IP Algılama:</strong> fromhost-ip otomatik parse</li>
+                    <li><strong>✅ Dinamik Klasör Oluşturma:</strong> createDirs="on"</li>
+                    <li><strong>✅ Interface Kategorileme:</strong> Message içerik analizi</li>
+                    <li><strong>✅ Günlük Organizasyon:</strong> Otomatik tarih bazlı dosyalar</li>
+                </ul>
+            </div>
+
+            <div class="flow-diagram">
+                <h3 style="margin-bottom: 20px;">🔄 Otomatik Algılama Akışı</h3>
+                <div class="flow-step" style="background: rgba(231,76,60,0.1);">
+                    <strong>1️⃣ Yeni Cihaz</strong><br>
+                    <small>192.168.1.X</small><br>
+                    <small>İlk log gönderir</small>
+                </div>
+                ➡️
+                <div class="flow-step" style="background: rgba(52,152,219,0.1);">
+                    <strong>2️⃣ RSyslog</strong><br>
+                    <small>UDP 514 dinler</small><br>
+                    <small>IP'yi otomatik algılar</small>
+                </div>
+                ➡️
+                <div class="flow-step" style="background: rgba(243,156,18,0.1);">
+                    <strong>3️⃣ Interface Detection</strong><br>
+                    <small>Message analizi</small><br>
+                    <small>HOTEL/CAFE/RESTAURANT</small>
+                </div>
+                ➡️
+                <div class="flow-step" style="background: rgba(39,174,96,0.1);">
+                    <strong>4️⃣ Auto Create</strong><br>
+                    <small>Klasör otomatik oluştur</small><br>
+                    <small>Log dosyası yaz</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- RSyslog Auto Config -->
+        <div class="section">
+            <h2>⚙️ RSyslog Otomatik Konfigürasyonu</h2>
+            
+            <div class="auto-card zero-config">
+                <h3 style="color: #3498db;">🔧 Dinamik Template Sistemi</h3>
+                
+                <div class="command-box"># 🤖 LogMaster Auto-Discovery Config
+module(load="imudp")
+
+# UDP input - Tüm IP'leri dinle
+input(type="imudp" port="514")
+
+# Dinamik path template - OTOMATIK klasör oluşturma
+template(name="AutoDiscoveryPath" type="string" 
+         string="/var/log/logmaster/%fromhost-ip%/%$.interface%/%$year%-%$month%-%$day%.log")
+
+# JSON template - Structured logging
+template(name="AutoJSON" type="list") {
+    constant(value="{")
+    constant(value="\"timestamp\":\"")     property(name="timereported" dateFormat="rfc3339")
+    constant(value="\",\"ip\":\"")         property(name="fromhost-ip")
+    constant(value="\",\"interface\":\"")  property(name="$.interface")
+    constant(value="\",\"facility\":\"")   property(name="syslogfacility-text")
+    constant(value="\",\"severity\":\"")   property(name="syslogseverity-text")
+    constant(value="\",\"message\":\"")    property(name="msg" format="json")
+    constant(value="\"}")
+    constant(value="\n")
+}
+
+# OTOMATIK INTERFACE ALGILLAMA - Hiçbir manuel tanım yok!
+if ($fromhost-ip != "127.0.0.1") then {
+    
+    # Default interface
+    set $.interface = "general";
+    
+    # Akıllı interface detection (tek geçiş)
+    if ($msg contains "HOTEL") then {
+        set $.interface = "HOTEL";
+    } else if ($msg contains "CAFE") then {
+        set $.interface = "CAFE";
+    } else if ($msg contains "RESTAURANT") then {
+        set $.interface = "RESTAURANT";
+    } else if ($msg contains "AVM") then {
+        set $.interface = "AVM";
+    } else if ($msg contains "OKUL") then {
+        set $.interface = "OKUL";
+    } else if ($msg contains "YURT") then {
+        set $.interface = "YURT";
+    } else if ($msg contains "KONUKEVI") then {
+        set $.interface = "KONUKEVI";
+    }
+    
+    # OTOMATIK DOSYA YAZMA - createDirs="on" tüm klasörleri oluşturur!
+    action(type="omfile" dynaFile="AutoDiscoveryPath" 
+           template="AutoJSON"
+           fileCreateMode="0644"
+           dirCreateMode="0755"
+           createDirs="on"
+           flushOnTXEnd="on")
+    stop
+}</div>
+            </div>
+        </div>
+
+        <!-- Auto Organization -->
+        <div class="section">
+            <h2>📁 Otomatik Dosya Organizasyonu</h2>
+            
+            <div class="auto-card organization">
+                <h3 style="color: #27ae60;">🗂️ Dinamik Klasör Yapısı</h3>
+                
+                <div style="background: rgba(0,0,0,0.1); padding: 20px; border-radius: 10px; font-family: 'Courier New', monospace; font-size: 14px; margin: 20px 0;">
+/var/log/logmaster/
+├── 192.168.1.100/          # 🆕 İlk log geldiğinde otomatik oluşturuldu
+│   ├── HOTEL/              # 🆕 "HOTEL" keyword algılandı
+│   │   ├── 2025-07-30.log  # 🆕 Bugünkü loglar
+│   │   └── 2025-07-31.log  # 🆕 Yarınki loglar (gün değiştiğinde)
+│   └── CAFE/               # 🆕 Aynı cihazdan "CAFE" log'u geldiğinde
+│       └── 2025-07-30.log
+├── 192.168.1.101/          # 🆕 Yeni cihaz bağlandığında otomatik
+│   └── RESTAURANT/         # 🆕 "RESTAURANT" keyword algılandı
+│       └── 2025-07-30.log
+├── 192.168.1.102/          # 🆕 Başka bir yeni cihaz
+│   ├── AVM/                # 🆕 "AVM" keyword algılandı
+│   │   └── 2025-07-30.log
+│   └── general/            # 🆕 Kategori belirsiz loglar
+│       └── 2025-07-30.log
+└── 10.0.0.50/              # 🆕 Farklı subnet'ten gelen cihaz
+    └── OKUL/               # 🆕 "OKUL" keyword algılandı
+        └── 2025-07-30.log
+
+# 📊 İstatistikler:
+# ✅ Toplam IP: Sınırsız (otomatik algılama)
+# ✅ Toplam Interface: 7 tip + general
+# ✅ Dosya formatı: JSON (structured)
+# ✅ Retention: Günlük dosyalar
+# ✅ Permissions: 755/644 (güvenli)
+                </div>
+                
+                <div class="highlight-box">
+                    <strong>🔑 Kritik Özellik:</strong> createDirs="on" sayesinde RSyslog, hiç var olmayan klasörleri otomatik oluşturuyor!<br>
+                    <strong>📈 Skalabilite:</strong> 1000+ farklı IP ve interface kombinasyonu otomatik destekleniyor.
+                </div>
+            </div>
+        </div>
+
+        <!-- Installation Steps -->
+        <div class="section">
+            <h2>🚀 Kurulum Adımları (Sadece 3 Adım!)</h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px;">
+                
+                <!-- Step 1 -->
+                <div style="background: rgba(231,76,60,0.1); padding: 25px; border-radius: 15px; border-left: 5px solid #e74c3c;">
+                    <h3 style="color: #e74c3c;">1️⃣ Eski Config'i Kaldır</h3>
+                    <div class="command-box">sudo systemctl stop rsyslog
+
+# Eski config'i yedekle
+sudo mv /etc/rsyslog.d/50-logmaster.conf \
+       /etc/rsyslog.d/50-logmaster.conf.backup 2>/dev/null
+
+# Base log dizinini oluştur (sadece ana dizin)
+sudo mkdir -p /var/log/logmaster
+sudo chown syslog:adm /var/log/logmaster
+sudo chmod 755 /var/log/logmaster</div>
+                </div>
+
+                <!-- Step 2 -->
+                <div style="background: rgba(39,174,96,0.1); padding: 25px; border-radius: 15px; border-left: 5px solid #27ae60;">
+                    <h3 style="color: #27ae60;">2️⃣ Auto-Discovery Config'i Yükle</h3>
+                    <div class="command-box">sudo tee /etc/rsyslog.d/60-logmaster-auto.conf > /dev/null << 'EOF'
+# [Yukarıdaki Auto-Discovery config'i buraya yapıştır]
+EOF
+
+# Config'i test et
+sudo rsyslog -N1</div>
+                </div>
+
+                <!-- Step 3 -->
+                <div style="background: rgba(52,152,219,0.1); padding: 25px; border-radius: 15px; border-left: 5px solid #3498db;">
+                    <h3 style="color: #3498db;">3️⃣ RSyslog'u Başlat ve Test Et</h3>
+                    <div class="command-box">sudo systemctl start rsyslog
+sudo systemctl enable rsyslog
+
+# Port kontrolü
+ss -ulnp | grep :514
+
+# Auto-discovery test
+logger -n 127.0.0.1 -P 514 -t "RouterOS" \
+       "HOTEL interface up - auto discovery test"
+
+# Otomatik klasör oluşturuldu mu?
+sleep 2
+find /var/log/logmaster/ -type d</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Auto Discovery Features -->
+        <div class="section">
+            <h2>🎯 Otomatik Algılama Özellikleri</h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                
+                <div class="auto-card" style="border-left-color: #e74c3c;">
+                    <h3 style="color: #e74c3c;">🔍 IP Algılama</h3>
+                    <ul>
+                        <li><strong>Otomatik:</strong> fromhost-ip parse</li>
+                        <li><strong>Sınırsız:</strong> Herhangi bir IP kabul</li>
+                        <li><strong>Subnet Bağımsız:</strong> 192.168.x.x, 10.x.x.x, vb.</li>
+                        <li><strong>IPv4 Destekli:</strong> Standard IP format</li>
+                        <li><strong>Dinamik:</strong> İlk log'da klasör oluştur</li>
+                    </ul>
+                </div>
+
+                <div class="auto-card" style="border-left-color: #27ae60;">
+                    <h3 style="color: #27ae60;">🏢 Interface Algılama</h3>
+                    <ul>
+                        <li><strong>HOTEL:</strong> Otel interface logları</li>
+                        <li><strong>CAFE:</strong> Kafe interface logları</li>
+                        <li><strong>RESTAURANT:</strong> Restoran interface logları</li>
+                        <li><strong>AVM:</strong> AVM interface logları</li>
+                        <li><strong>OKUL:</strong> Okul interface logları</li>
+                        <li><strong>YURT:</strong> Yurt interface logları</li>
+                        <li><strong>KONUKEVI:</strong> Konukevi interface logları</li>
+                        <li><strong>general:</strong> Kategori belirsiz loglar</li>
+                    </ul>
+                </div>
+
+                <div class="auto-card" style="border-left-color: #3498db;">
+                    <h3 style="color: #3498db;">📅 Zaman Organizasyonu</h3>
+                    <ul>
+                        <li><strong>Günlük Dosyalar:</strong> YYYY-MM-DD.log</li>
+                        <li><strong>Otomatik Döngü:</strong> Gece yarısı yeni dosya</li>
+                        <li><strong>Tarih Parse:</strong> %$year%-%$month%-%$day%</li>
+                        <li><strong>Logrotate Ready:</strong> Otomatik arşivleme</li>
+                        <li><strong>Compression:</strong> Eski dosyalar sıkıştırılır</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Testing & Monitoring -->
+        <div class="section">
+            <h2>🧪 Test ve İzleme</h2>
+            
+            <div class="auto-card" style="border-left-color: #f39c12; background: rgba(243,156,18,0.1);">
+                <h3 style="color: #f39c12;">📊 Otomatik Algılama Testi</h3>
+                
+                <div class="command-box"># 🧪 Çoklu cihaz simülasyonu
+echo "=== Otomatik Algılama Testi Başlıyor ==="
+
+# Test 1: HOTEL cihazı
+logger -n 127.0.0.1 -P 514 -t "RouterOS" \
+       "HOTEL interface eth1 link up"
+
+# Test 2: CAFE cihazı (aynı IP, farklı interface)  
+logger -n 127.0.0.1 -P 514 -t "RouterOS" \
+       "CAFE interface eth2 link up"
+
+# Test 3: RESTAURANT cihazı
+logger -n 127.0.0.1 -P 514 -t "RouterOS" \
+       "RESTAURANT interface eth3 link up"
+
+# Test 4: Kategori belirsiz log
+logger -n 127.0.0.1 -P 514 -t "RouterOS" \
+       "eth0 interface status changed"
+
+# Sonuçları kontrol et
+sleep 3
+echo "=== Otomatik Oluşturulan Klasörler ==="
+find /var/log/logmaster/ -type d | sort
+
+echo "=== Otomatik Oluşturulan Log Dosyaları ==="
+find /var/log/logmaster/ -name "*.log" | sort
+
+echo "=== Log İçerikleri ==="
+tail -1 /var/log/logmaster/*/HOTEL/*.log 2>/dev/null || echo "HOTEL log yok"
+tail -1 /var/log/logmaster/*/CAFE/*.log 2>/dev/null || echo "CAFE log yok"
+tail -1 /var/log/logmaster/*/RESTAURANT/*.log 2>/dev/null || echo "RESTAURANT log yok"
+tail -1 /var/log/logmaster/*/general/*.log 2>/dev/null || echo "General log yok"</div>
+            </div>
+
+            <div class="highlight-box">
+                <h3 style="color: #27ae60;">🎯 Beklenen Sonuç</h3>
+                <p><strong>Bu test sonrasında otomatik olarak şu klasör yapısı oluşacak:</strong></p>
+                <div style="background: rgba(0,0,0,0.1); padding: 15px; border-radius: 8px; font-family: monospace; margin: 10px 0;">
+/var/log/logmaster/127.0.0.1/HOTEL/2025-07-30.log<br>
+/var/log/logmaster/127.0.0.1/CAFE/2025-07-30.log<br>
+/var/log/logmaster/127.0.0.1/RESTAURANT/2025-07-30.log<br>
+/var/log/logmaster/127.0.0.1/general/2025-07-30.log
+                </div>
+                <p><strong>✅ Hiçbir manuel klasör oluşturma yapılmadı - tamamen otomatik!</strong></p>
+            </div>
+        </div>
+
+        <!-- Real Device Connection -->
+        <div class="section">
+            <h2>🔌 Gerçek Cihaz Bağlantısı</h2>
+            
+            <div class="warning-box">
+                <h3 style="color: #e74c3c;">⚠️ Önemli: Hiçbir Manuel Konfigürasyon Yapma!</h3>
+                <ul style="margin: 15px 0; padding-left: 30px;">
+                    <li>❌ LogMaster'da IP listesi tanımlama</li>
+                    <li>❌ Manuel klasör oluşturma</li>
+                    <li>❌ Cihaz kayıt dosyası hazırlama</li>
+                    <li>❌ Static path tanımlama</li>
+                    <li>✅ Sadece Mikrotik'te syslog konfigürasyonu yap!</li>
+                </ul>
+            </div>
+
+            <div class="auto-card" style="border-left-color: #9b59b6; background: rgba(155,89,182,0.1);">
+                <h3 style="color: #9b59b6;">📱 Mikrotik Konfigürasyonu (Tek Adım)</h3>
+                
+                <div class="command-box"># Mikrotik RouterOS'ta çalıştır:
+/system logging action add name=logmaster target=remote remote=92.113.43.134 remote-port=514
+/system logging add topics=system action=logmaster
+/system logging add topics=info action=logmaster
+
+# Test log gönder
+:log info "HOTEL interface ready - LogMaster auto-discovery test"</div>
+
+                <div style="background: rgba(39,174,96,0.2); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                    <strong>🎯 Bu kadar!</strong> LogMaster otomatik olarak:
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>Mikrotik'in IP'sini algılayacak</li>
+                        <li>Klasör yapısını oluşturacak</li>
+                        <li>"HOTEL" keyword'ünü yakalayacak</li>
+                        <li>Doğru klasöre log yazacak</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="section">
+            <h2>✅ Özet: Tamamen Otomatik Sistem</h2>
+            
+            <div style="background: rgba(46,204,113,0.1); padding: 30px; border-radius: 15px; text-align: center;">
+                <h3 style="color: #2ecc71; margin-bottom: 20px;">🤖 LogMaster Auto-Discovery - Hazır!</h3>
+                
+                <div class="feature-grid">
+                    <div style="background: rgba(231,76,60,0.2); padding: 20px; border-radius: 10px;">
+                        <strong>🔍 Zero Config</strong><br>
+                        <small>Hiçbir manuel ayar yok</small>
+                    </div>
+                    <div style="background: rgba(39,174,96,0.2); padding: 20px; border-radius: 10px;">
+                        <strong>📁 Auto Organization</strong><br>
+                        <small>Dinamik klasör oluşturma</small>
+                    </div>
+                    <div style="background: rgba(52,152,219,0.2); padding: 20px; border-radius: 10px;">
+                        <strong>🏢 Smart Detection</strong><br>
+                        <small>Interface bazlı ayrım</small>
+                    </div>
+                    <div style="background: rgba(243,156,18,0.2); padding: 20px; border-radius: 10px;">
+                        <strong>⚡ Plug & Play</strong><br>
+                        <small>Anında kullanıma hazır</small>
+                    </div>
+                </div>
+                
+                <div class="highlight-box" style="margin-top: 25px;">
+                    <h4 style="color: #27ae60; margin-bottom: 15px;">🎯 Sistemin Çalışma Prensibi</h4>
+                    <p style="font-size: 16px; line-height: 1.8;">
+                        <strong>1.</strong> Yeni Mikrotik cihazı LogMaster'a log gönderir<br>
+                        <strong>2.</strong> RSyslog otomatik olarak IP'yi algılar<br>
+                        <strong>3.</strong> Message içeriğinden interface tipini belirler<br>
+                        <strong>4.</strong> Gerekli klasör yapısını oluşturur<br>
+                        <strong>5.</strong> Log'u doğru yere yazar<br><br>
+                        <strong style="color: #e74c3c;">🔥 TÜM SÜREÇ OTOMATIK!</strong>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

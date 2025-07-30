@@ -1,0 +1,229 @@
+# 🚀 LogMaster Configuration File
+# Auto-Discovery Log Management System
+
+# Server Configuration
+server:
+  host: "0.0.0.0"
+  port: 8080
+  mode: "production"  # development, production
+  read_timeout: 30s
+  write_timeout: 30s
+  max_header_bytes: 16384
+
+# Logging Configuration
+logging:
+  level: "info"  # debug, info, warn, error
+  directory: "/var/log/logmaster"
+  format: "json"
+  max_file_size: 100  # MB
+  max_backups: 30
+  max_age: 365  # days
+  compress: true
+
+# Database Configurations
+databases:
+  postgresql:
+    host: "localhost"
+    port: 5432
+    database: "logmaster"
+    username: "logmaster"
+    password: "logmaster_password"
+    sslmode: "disable"
+    max_open_conns: 25
+    max_idle_conns: 5
+    conn_max_lifetime: 300s
+
+  redis:
+    host: "localhost"
+    port: 6379
+    password: ""
+    database: 0
+    max_retries: 3
+    pool_size: 10
+    min_idle_conns: 5
+
+  elasticsearch:
+    hosts:
+      - "http://localhost:9200"
+    username: ""
+    password: ""
+    index_prefix: "logmaster"
+    max_retries: 3
+    timeout: 30s
+
+# RSyslog Integration
+rsyslog:
+  config_path: "/etc/rsyslog.d/60-logmaster-auto.conf"
+  log_directory: "/var/log/logmaster"
+  udp_port: 514
+  json_template: "AutoJSON"
+  auto_discovery: true
+  create_dirs: true
+  file_mode: "0644"
+  dir_mode: "0755"
+
+# Interface Detection
+interfaces:
+  detection_method: "keyword"  # keyword, regex, ai
+  keywords:
+    - "HOTEL"
+    - "CAFE" 
+    - "RESTAURANT"
+    - "AVM"
+    - "OKUL"
+    - "YURT"
+    - "KONUKEVI"
+  default_interface: "general"
+  case_sensitive: false
+
+# Auto-Discovery Settings
+auto_discovery:
+  enabled: true
+  create_directories: true
+  max_ips: 1000
+  max_interfaces_per_ip: 20
+  cleanup_empty_dirs: true
+  monitoring_interval: 60s
+
+# Performance Settings
+performance:
+  max_concurrent_requests: 1000
+  max_logs_per_request: 10000
+  cache_size: 1000  # MB
+  batch_size: 1000
+  flush_interval: 5s
+  compression_enabled: true
+
+# Security Settings
+security:
+  cors_enabled: true
+  cors_origins:
+    - "*"
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 1000
+  authentication:
+    enabled: false  # Enable in production
+    jwt_secret: "change-in-production"
+    token_expiry: 24h
+
+# Monitoring & Metrics
+monitoring:
+  enabled: true
+  prometheus:
+    enabled: true
+    port: 9090
+    path: "/metrics"
+  grafana:
+    enabled: true
+    port: 3001
+    admin_password: "admin123"
+  health_check:
+    enabled: true
+    path: "/health"
+    interval: 30s
+
+# File Management
+file_management:
+  rotation:
+    enabled: true
+    max_size: "100M"
+    max_age: 365  # days
+    compress: true
+  archiving:
+    enabled: true
+    archive_after: 30  # days
+    archive_location: "/var/log/logmaster/archive"
+    compression: "gzip"
+  retention:
+    default_days: 365
+    by_interface:
+      HOTEL: 730      # 2 years
+      CAFE: 365       # 1 year
+      RESTAURANT: 365 # 1 year
+      AVM: 365        # 1 year
+      OKUL: 1095      # 3 years
+      general: 90     # 3 months
+
+# Alerting Configuration
+alerting:
+  enabled: true
+  channels:
+    email:
+      enabled: false
+      smtp_host: "smtp.gmail.com"
+      smtp_port: 587
+      username: ""
+      password: ""
+      from: "logmaster@company.com"
+      to:
+        - "admin@company.com"
+    webhook:
+      enabled: false
+      url: "https://hooks.slack.com/services/your/webhook/url"
+  rules:
+    high_error_rate:
+      enabled: true
+      threshold: 100  # errors per minute
+      window: "5m"
+    disk_space_low:
+      enabled: true
+      threshold: 85   # percentage
+    service_down:
+      enabled: true
+      services:
+        - "rsyslog"
+        - "postgresql"
+        - "redis"
+
+# API Configuration
+api:
+  version: "v1"
+  base_path: "/api/v1"
+  documentation:
+    enabled: true
+    swagger_ui: true
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 1000
+  pagination:
+    default_limit: 100
+    max_limit: 10000
+
+# Frontend Configuration
+frontend:
+  enabled: true
+  build_path: "./frontend/logmaster-dashboard/build"
+  dev_server_port: 3000
+  auto_reload: true
+
+# Development Settings
+development:
+  debug: false
+  mock_data: false
+  profiling: false
+  hot_reload: false
+
+# Production Settings
+production:
+  ssl:
+    enabled: false
+    cert_file: "/etc/ssl/certs/logmaster.crt"
+    key_file: "/etc/ssl/private/logmaster.key"
+  backup:
+    enabled: true
+    interval: "24h"
+    location: "/backup/logmaster"
+    retention_days: 30
+
+# System Integration
+system:
+  user: "logmaster"
+  group: "logmaster"
+  pid_file: "/var/run/logmaster.pid"
+  systemd:
+    enabled: true
+    service_name: "logmaster-api"
+  logrotate:
+    enabled: true
+    config_path: "/etc/logrotate.d/logmaster"
