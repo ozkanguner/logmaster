@@ -24,29 +24,41 @@ git clone https://github.com/ozkanguner/logmaster.git
 cd logmaster
 ```
 
-### 2. Run Installation Script
+### 2. Fix Permissions and Run Installation Script
 ```bash
-sudo chmod +x scripts/install.sh
+# IMPORTANT: Make script executable first
+chmod +x scripts/install.sh
+
+# Then run installation
 sudo ./scripts/install.sh
+
+# Alternative methods if above fails:
+# bash scripts/install.sh
+# sh scripts/install.sh
 ```
 
 The installation script will automatically:
 - Update system packages
-- Install all dependencies (Go, Node.js, PostgreSQL, Redis, Elasticsearch, Grafana, etc.)
+- Install dependencies (Go, Node.js, RSyslog, nginx)
 - Create LogMaster user and directories
 - Configure RSyslog for auto-discovery
 - Build and deploy LogMaster components
-- Configure and start all services
+- Configure and start all services (no databases needed!)
 
 ### 3. Verify Installation
 ```bash
 # Check service status
 sudo systemctl status logmaster-api
 sudo systemctl status rsyslog
-sudo systemctl status grafana-server
+
+# Check LogMaster API
+curl http://localhost:8080/health
+
+# Check RSyslog is listening
+sudo ss -ulnp | grep :514
 
 # Check ports
-sudo ss -tlnp | grep -E ":514|:3000|:3001|:8080"
+sudo ss -tlnp | grep -E ":514|:3000|:8080"
 
 # Test auto-discovery
 logger -n 127.0.0.1 -P 514 -t "RouterOS" "HOTEL interface up - test"

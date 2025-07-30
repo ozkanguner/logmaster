@@ -52,8 +52,12 @@ git clone https://github.com/ozkanguner/logmaster.git
 cd logmaster
 ```
 
-2. **Run the installation script**
+2. **Fix script permissions and run installation**
 ```bash
+# Make script executable (important!)
+chmod +x scripts/install.sh
+
+# Run installation
 sudo ./scripts/install.sh
 ```
 
@@ -130,6 +134,25 @@ logging:
 | **YURT** | Dormitory interface logs | `msg contains "YURT"` |
 | **KONUKEVI** | Guesthouse interface logs | `msg contains "KONUKEVI"` |
 | **general** | Unclassified logs | Default fallback |
+
+## ⚠️ Quick Troubleshooting
+
+### Script Permission Error
+```bash
+# Error: ./scripts/install.sh: command not found
+# Solution:
+chmod +x scripts/install.sh
+sudo ./scripts/install.sh
+```
+
+### Alternative Installation Methods
+```bash
+# If chmod doesn't work, use:
+bash scripts/install.sh
+
+# Or:
+sh scripts/install.sh
+```
 
 ## 📖 Documentation
 
